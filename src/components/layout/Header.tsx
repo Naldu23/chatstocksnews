@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, Moon, Sun, Menu, X, Crown, Globe } from 'lucide-react';
+import { Moon, Sun, Menu, X, Crown, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,8 +12,6 @@ interface HeaderProps {
 
 export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [searchActive, setSearchActive] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [language, setLanguage] = useState<'en' | 'ko'>('en');
   const { toast } = useToast();
   
@@ -30,14 +28,6 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
       title: newLanguage === 'en' ? 'Language Changed' : '언어가 변경됨',
       description: newLanguage === 'en' ? 'Switched to English' : '한국어로 전환됨',
     });
-  };
-  
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Search query:', searchQuery);
-    // Implementation for search would go here
-    setSearchActive(false);
-    setSearchQuery('');
   };
   
   return (
@@ -111,35 +101,6 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
         </nav>
         
         <div className="flex items-center gap-2">
-          {searchActive ? (
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-[200px] rounded-full border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={() => setSearchActive(false)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close search</span>
-              </button>
-            </form>
-          ) : (
-            <button
-              onClick={() => setSearchActive(true)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
-            </button>
-          )}
-          
           <button
             onClick={toggleLanguage}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
