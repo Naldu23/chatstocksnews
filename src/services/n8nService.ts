@@ -4,9 +4,10 @@ interface WebhookResponse {
   error?: string;
 }
 
-export type WebhookType = 'chat' | 'research' | 'report' | 'stocks' | 'news' | 'stocksOverview' | 'trendingStocks';
+export type WebhookType = 'chat' | 'research' | 'report' | 'stocks' | 'news' | 'stocksOverview' | 'trendingStocks' | 'dateFilter';
 
 const N8N_BASE_URL = 'https://naldu.app.n8n.cloud';
+const N8N_DATE_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/7404c6fa-5c6f-49d6-9746-c25c5fc53411';
 
 /**
  * Service for handling n8n webhook integrations
@@ -34,8 +35,13 @@ export class N8nService {
       stocks: 'webhook-test/2', 
       news: 'webhook-test/3',
       stocksOverview: 'webhook-test/e7811fb4-17f2-4660-9f96-be1cbbebe029',
-      trendingStocks: 'webhook-test/trending-stocks' // Placeholder endpoint for trending stocks
+      trendingStocks: 'webhook-test/trending-stocks', // Placeholder endpoint for trending stocks
+      dateFilter: 'webhook-test/7404c6fa-5c6f-49d6-9746-c25c5fc53411'
     };
+    
+    if (type === 'dateFilter') {
+      return N8N_DATE_WEBHOOK_URL;
+    }
     
     return `${N8N_BASE_URL}/${endpoints[type]}`;
   }
@@ -216,6 +222,17 @@ export class N8nService {
    */
   public static async fetchTrendingStocks(): Promise<WebhookResponse> {
     return N8nService.getInstance().sendWebhookRequest('trendingStocks', {});
+  }
+  
+  /**
+   * Sends selected date to the date filter webhook
+   */
+  public static async sendDateFilter(date: Date | undefined): Promise<WebhookResponse> {
+    const formattedDate = date ? date.toISOString() : null;
+    return N8nService.getInstance().sendWebhookRequest('dateFilter', { 
+      date: formattedDate,
+      timestamp: new Date().toISOString()
+    }, 'POST');
   }
 }
 

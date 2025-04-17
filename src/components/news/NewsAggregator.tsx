@@ -49,7 +49,39 @@ export function NewsAggregator() {
   useEffect(() => {
     fetchNewsData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate]);
+  }, []);
+  
+  const handleDateChange = async (date: Date | undefined) => {
+    setSelectedDate(date);
+    try {
+      // Send the selected date to the webhook
+      const response = await N8nService.sendDateFilter(date);
+      console.log('Date filter webhook response:', response);
+      
+      if (!response.success) {
+        toast({
+          title: "Warning",
+          description: "Date selection was updated but the webhook notification failed.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Date selection was updated and notification sent.",
+        });
+      }
+    } catch (error) {
+      console.error('Error sending date to webhook:', error);
+      toast({
+        title: "Warning",
+        description: "Date selection was updated but the webhook notification failed.",
+        variant: "destructive",
+      });
+    }
+    
+    // After setting the date, refresh the news data
+    fetchNewsData();
+  };
   
   useEffect(() => {
     let filtered = [...newsArticles];
@@ -118,7 +150,7 @@ export function NewsAggregator() {
           <div className="space-y-6">
             <DateFilter
               selectedDate={selectedDate}
-              onDateChange={setSelectedDate}
+              onDateChange={handleDateChange}
               onRefresh={fetchNewsData}
               isLoading={isLoading}
             />

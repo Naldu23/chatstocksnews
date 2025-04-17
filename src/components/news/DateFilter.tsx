@@ -24,6 +24,10 @@ export const DateFilter = ({
   onRefresh,
   isLoading
 }: DateFilterProps) => {
+  const handleDateChange = (date: Date | undefined) => {
+    onDateChange(date);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -55,7 +59,7 @@ export const DateFilter = ({
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={onDateChange}
+              onSelect={handleDateChange}
               initialFocus
               className={cn("p-3 pointer-events-auto")}
             />
