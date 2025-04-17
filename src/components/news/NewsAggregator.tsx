@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
-import { addDays, subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
-import { NewsArticle, importanceGrades } from './types';
+import { NewsArticle } from './types';
 import { dummyNewsArticles } from './dummyData';
 import ArticleCard from './ArticleCard';
 import DateFilter from './DateFilter';
@@ -15,50 +16,16 @@ export function NewsAggregator() {
   const { toast } = useToast();
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(dummyNewsArticles);
   const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>(dummyNewsArticles);
-  const [dateRangeType, setDateRangeType] = useState('last7days');
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 7));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
-  const handleDateRangeTypeChange = (value: string) => {
-    setDateRangeType(value);
-    const today = new Date();
-    
-    switch (value) {
-      case 'today':
-        setStartDate(startOfDay(today));
-        setEndDate(endOfDay(today));
-        break;
-      case 'yesterday':
-        const yesterday = subDays(today, 1);
-        setStartDate(startOfDay(yesterday));
-        setEndDate(endOfDay(yesterday));
-        break;
-      case 'last7days':
-        setStartDate(subDays(today, 7));
-        setEndDate(today);
-        break;
-      case 'last30days':
-        setStartDate(subDays(today, 30));
-        setEndDate(today);
-        break;
-      case 'custom':
-        // Keep existing dates or reset them
-        if (!startDate) setStartDate(subDays(today, 7));
-        if (!endDate) setEndDate(today);
-        break;
-      default:
-        break;
-    }
-  };
   
   const fetchNewsData = async () => {
     setIsLoading(true);
     
     try {
-      // In a real implementation, you would pass startDate and endDate to the service
+      // In a real implementation, you would pass selectedDate to the service
       const response = await N8nService.fetchNewsData('all', 10);
       
       if (response.success && response.data) {
@@ -82,16 +49,19 @@ export function NewsAggregator() {
   useEffect(() => {
     fetchNewsData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, endDate, dateRangeType]);
+  }, [selectedDate]);
   
   useEffect(() => {
     let filtered = [...newsArticles];
     
-    // Filter by date range
-    if (startDate && endDate) {
+    // Filter by date
+    if (selectedDate) {
+      const dayStart = startOfDay(selectedDate);
+      const dayEnd = endOfDay(selectedDate);
+      
       filtered = filtered.filter(article => {
         const articleDate = parseISO(article.publishedAt);
-        return articleDate >= startDate && articleDate <= endDate;
+        return articleDate >= dayStart && articleDate <= dayEnd;
       });
     }
     
@@ -109,7 +79,7 @@ export function NewsAggregator() {
     }
     
     setFilteredArticles(filtered);
-  }, [newsArticles, startDate, endDate, selectedGrade, searchQuery]);
+  }, [newsArticles, selectedDate, selectedGrade, searchQuery]);
   
   const handleGradeSelect = (gradeId: string) => {
     setSelectedGrade(gradeId);
@@ -147,12 +117,8 @@ export function NewsAggregator() {
           
           <div className="space-y-6">
             <DateFilter
-              startDate={startDate}
-              endDate={endDate}
-              onStartDateChange={setStartDate}
-              onEndDateChange={setEndDate}
-              dateRangeType={dateRangeType}
-              onDateRangeTypeChange={handleDateRangeTypeChange}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
               onRefresh={fetchNewsData}
               isLoading={isLoading}
             />
