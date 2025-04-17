@@ -1,9 +1,15 @@
 
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Moon, Sun, Menu, X, Crown, Globe } from 'lucide-react';
+import { Moon, Sun, Menu, X, Crown, Globe, Slack, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -12,22 +18,11 @@ interface HeaderProps {
 
 export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [language, setLanguage] = useState<'en' | 'ko'>('en');
   const { toast } = useToast();
   
   const toggleDarkMode = () => {
     document.documentElement.classList.toggle('dark');
     setIsDarkMode(!isDarkMode);
-  };
-  
-  const toggleLanguage = () => {
-    const newLanguage = language === 'en' ? 'ko' : 'en';
-    setLanguage(newLanguage);
-    
-    toast({
-      title: newLanguage === 'en' ? 'Language Changed' : '언어가 변경됨',
-      description: newLanguage === 'en' ? 'Switched to English' : '한국어로 전환됨',
-    });
   };
   
   return (
@@ -101,13 +96,32 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
         </nav>
         
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleLanguage}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <Globe className="h-5 w-5" />
-            <span className="sr-only">Toggle language</span>
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+              <Globe className="h-5 w-5" />
+              <span className="sr-only">External links</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <a href="https://slack.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <Slack className="h-4 w-4" />
+                  <span>Slack</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="https://www.reuters.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  <span>Reuters</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="https://www.bloomberg.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  <span>Bloomberg</span>
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           
           <button
             onClick={toggleDarkMode}
