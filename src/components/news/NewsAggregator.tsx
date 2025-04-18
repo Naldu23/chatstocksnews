@@ -242,6 +242,12 @@ export function NewsAggregator() {
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
+      {!isLoading && (
+        <div className="mb-8 border-b pb-8">
+          <FeaturedArticles articles={newsArticles} isLoading={isLoading} />
+        </div>
+      )}
+      
       <div className="flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-64 space-y-6">
           <div className="mb-6">
@@ -270,7 +276,6 @@ export function NewsAggregator() {
         </div>
         
         <div className="flex-1">
-          {!isLoading && <FeaturedArticles articles={newsArticles} isLoading={isLoading} />}
           {renderContent()}
           
           {isErrorState && !isLoading && (

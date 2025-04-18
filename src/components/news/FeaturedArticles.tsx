@@ -1,5 +1,4 @@
 
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { NewsArticle } from './types';
 import {
@@ -10,9 +9,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
-import { Clock, ExternalLink } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 
 interface FeaturedArticlesProps {
   articles: NewsArticle[];
@@ -20,15 +18,13 @@ interface FeaturedArticlesProps {
 }
 
 export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, 'MMM d, yyyy');
   };
 
   return (
-    <div className="mb-8 space-y-4">
+    <div className="w-full mb-8 space-y-4">
       <h2 className="text-2xl font-bold">Featured Articles</h2>
       
       <Carousel
@@ -39,7 +35,7 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
         className="w-full"
       >
         <CarouselContent>
-          {articles.slice(0, 10).map((article, index) => (
+          {articles.slice(0, 10).map((article) => (
             <CarouselItem key={article.id} className="md:basis-1/2 lg:basis-1/3">
               <Card className="border-0 shadow-lg">
                 <CardContent className="p-0">
@@ -49,7 +45,7 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
                         <img
                           src={article.imageUrl}
                           alt={article.title}
-                          className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                          className="h-full w-full object-cover"
                         />
                       ) : (
                         <div className="h-full w-full bg-muted flex items-center justify-center">
