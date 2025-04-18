@@ -21,7 +21,7 @@ export function NewsAggregator() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true); // Start with loading state true
+  const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
   
   const sendDateToWebhook = useCallback(async (date: Date) => {
@@ -243,6 +243,32 @@ export function NewsAggregator() {
     ));
   };
   
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="space-y-6">
+          {renderLoadingSkeletons()}
+        </div>
+      );
+    }
+    
+    if (filteredArticles.length === 0) {
+      return <NoArticlesFound />;
+    }
+    
+    return (
+      <div className="space-y-6">
+        {filteredArticles.map((article) => (
+          <ArticleCard 
+            key={article.id} 
+            article={article} 
+            onGradeChange={handleGradeChange}
+          />
+        ))}
+      </div>
+    );
+  };
+  
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
       <div className="flex flex-col md:flex-row gap-6">
@@ -273,23 +299,7 @@ export function NewsAggregator() {
         </div>
         
         <div className="flex-1">
-          {isLoading ? (
-            <div className="space-y-6">
-              {renderLoadingSkeletons()}
-            </div>
-          ) : filteredArticles.length === 0 ? (
-            <NoArticlesFound />
-          ) : (
-            <div className="space-y-6">
-              {filteredArticles.map((article) => (
-                <ArticleCard 
-                  key={article.id} 
-                  article={article} 
-                  onGradeChange={handleGradeChange}
-                />
-              ))}
-            </div>
-          )}
+          {renderContent()}
           
           {isErrorState && !isLoading && (
             <Alert variant="destructive" className="mt-4">
