@@ -16,6 +16,15 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
     return format(date, 'MMM d, yyyy');
   };
 
+  const getPlaceholderImage = () => {
+    const placeholderImages = [
+      'https://images.unsplash.com/photo-1649972904349-6e44c42644a7',
+      'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
+      'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d'
+    ];
+    return placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+  };
+
   return (
     <div className="w-full mb-8">
       <h2 className="text-2xl font-bold mb-6">Featured Articles</h2>
@@ -35,9 +44,11 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full bg-muted flex items-center justify-center">
-                        <span className="text-muted-foreground">No image</span>
-                      </div>
+                      <img
+                        src={getPlaceholderImage()}
+                        alt="Placeholder image"
+                        className="h-full w-full object-cover"
+                      />
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-8">
                       <h3 className="text-white font-bold text-3xl mb-3">
@@ -78,9 +89,11 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full bg-muted flex items-center justify-center">
-                        <span className="text-muted-foreground">No image</span>
-                      </div>
+                      <img
+                        src={getPlaceholderImage()}
+                        alt="Placeholder image"
+                        className="h-full w-full object-cover"
+                      />
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-4">
                       <h3 className="text-white font-semibold text-lg mb-3 line-clamp-2">
@@ -116,9 +129,11 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full bg-muted flex items-center justify-center">
-                        <span className="text-muted-foreground">No image</span>
-                      </div>
+                      <img
+                        src={getPlaceholderImage()}
+                        alt="Placeholder image"
+                        className="h-full w-full object-cover"
+                      />
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-4">
                       <h3 className="text-white font-semibold text-lg mb-3 line-clamp-2">
@@ -145,3 +160,4 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
 };
 
 export default FeaturedArticles;
+
