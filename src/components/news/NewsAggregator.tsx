@@ -177,6 +177,12 @@ export function NewsAggregator() {
     }
   }, []);
 
+  const handleRefresh = useCallback(() => {
+    if (selectedDate) {
+      fetchNewsData(selectedDate);
+    }
+  }, [selectedDate, fetchNewsData]);
+
   useEffect(() => {
     if (isLoading) return;
     
@@ -296,7 +302,7 @@ export function NewsAggregator() {
             <DateFilter
               selectedDate={selectedDate}
               onDateChange={handleDateChange}
-              onRefresh={fetchNewsData}
+              onRefresh={handleRefresh}
               isLoading={isLoading}
             />
             
