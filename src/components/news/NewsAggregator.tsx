@@ -20,12 +20,14 @@ export function NewsAggregator() {
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isErrorState, setIsErrorState] = useState(false);
   
   const fetchNewsData = async () => {
     setIsLoading(true);
+    setIsErrorState(false);
     
     try {
-      console.log('Loading news data from dummy data');
+      console.log('Loading news data...');
       // Always load the dummy data first to ensure we have something to display
       setNewsArticles(dummyNewsArticles);
       
@@ -35,10 +37,14 @@ export function NewsAggregator() {
         // If the webhook was successful and returned articles, use those instead
         if (webhookResponse.success && 
             webhookResponse.data && 
-            webhookResponse.data.articles && 
-            webhookResponse.data.articles.length > 0) {
+            Array.isArray(webhookResponse.data) && 
+            webhookResponse.data.length > 0 && 
+            webhookResponse.data[0].articles && 
+            Array.isArray(webhookResponse.data[0].articles) && 
+            webhookResponse.data[0].articles.length > 0) {
+          
           // Validate the articles received to ensure they match our expected format
-          const validatedArticles = webhookResponse.data.articles.map((article: any) => {
+          const validatedArticles = webhookResponse.data[0].articles.map((article: any) => {
             return {
               id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
               title: article.title || 'Untitled Article',
@@ -55,10 +61,42 @@ export function NewsAggregator() {
           
           setNewsArticles(validatedArticles);
           console.log('Successfully loaded articles from webhook:', validatedArticles);
+        } else if (webhookResponse.success && 
+                  webhookResponse.data && 
+                  webhookResponse.data.articles && 
+                  Array.isArray(webhookResponse.data.articles) && 
+                  webhookResponse.data.articles.length > 0) {
+          
+          // Direct articles array format
+          const validatedArticles = webhookResponse.data.articles.map((article: any) => {
+            return {
+              id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
+              title: article.title || 'Untitled Article',
+              summary: article.summary || '',
+              source: article.source || 'Unknown Source',
+              publishedAt: article.publishedAt || new Date().toISOString(),
+              url: article.url || '#',
+              imageUrl: article.imageUrl,
+              readTime: article.readTime || 5,
+              content: article.content,
+              grade: article.grade
+            } as NewsArticle;
+          });
+          
+          setNewsArticles(validatedArticles);
+          console.log('Successfully loaded articles directly from webhook:', validatedArticles);
+        } else {
+          console.warn('Webhook response was successful but no valid articles found, using dummy data.');
+          toast({
+            title: "Notice",
+            description: "Could not retrieve articles from the server. Using sample data instead.",
+            variant: "default",
+          });
         }
       }
     } catch (error) {
       console.error('Error loading news data:', error);
+      setIsErrorState(true);
       toast({
         title: "Error",
         description: "Failed to load news data. Using sample data instead.",
@@ -76,35 +114,20 @@ export function NewsAggregator() {
   
   const sendDateToWebhook = async (date: Date) => {
     try {
-      // Add retry mechanism with maximum 3 attempts
-      let attempts = 0;
-      const maxAttempts = 3;
-      let response;
-      
-      do {
-        attempts++;
-        console.log(`Attempt ${attempts} to send date to webhook`);
-        response = await N8nService.sendDateFilter(date);
-        
-        if (response.success) break;
-        
-        // Wait before retrying
-        if (attempts < maxAttempts) {
-          await new Promise(r => setTimeout(r, 1000));
-        }
-      } while (attempts < maxAttempts && !response.success);
+      console.log(`Sending date to webhook: ${date.toISOString()}`);
+      const response = await N8nService.sendDateFilter(date);
       
       if (!response.success) {
-        console.warn(`Failed to send date to webhook after ${maxAttempts} attempts`);
+        console.warn('Failed to send date to webhook:', response.error);
         toast({
           title: "Warning",
-          description: "Date selection was updated but the webhook notification failed.",
+          description: "Date selection was updated but we couldn't fetch new articles.",
           variant: "destructive",
         });
       } else {
         toast({
           title: "Success",
-          description: "Date selection was updated and notification sent.",
+          description: "Date selection was updated and new articles fetched.",
         });
       }
       
@@ -127,10 +150,11 @@ export function NewsAggregator() {
   const handleDateChange = async (date: Date | undefined) => {
     setSelectedDate(date);
     if (date) {
+      setIsLoading(true);
       await sendDateToWebhook(date);
+      await fetchNewsData();
+      setIsLoading(false);
     }
-    
-    fetchNewsData();
   };
   
   useEffect(() => {
@@ -141,8 +165,13 @@ export function NewsAggregator() {
       const dayEnd = endOfDay(selectedDate);
       
       filtered = filtered.filter(article => {
-        const articleDate = parseISO(article.publishedAt);
-        return articleDate >= dayStart && articleDate <= dayEnd;
+        try {
+          const articleDate = parseISO(article.publishedAt);
+          return articleDate >= dayStart && articleDate <= dayEnd;
+        } catch (error) {
+          console.error(`Invalid date format for article ${article.id}:`, article.publishedAt);
+          return false;
+        }
       });
     }
     
@@ -213,7 +242,11 @@ export function NewsAggregator() {
         </div>
         
         <div className="flex-1">
-          {filteredArticles.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+            </div>
+          ) : filteredArticles.length === 0 ? (
             <NoArticlesFound />
           ) : (
             <div className="space-y-6">
@@ -224,6 +257,13 @@ export function NewsAggregator() {
                   onGradeChange={handleGradeChange}
                 />
               ))}
+            </div>
+          )}
+          
+          {isErrorState && (
+            <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md">
+              <p className="font-medium">There was an error connecting to the news service.</p>
+              <p className="text-sm mt-1">Showing sample articles instead. You can try refreshing the data.</p>
             </div>
           )}
         </div>

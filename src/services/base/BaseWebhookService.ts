@@ -1,4 +1,3 @@
-
 export interface WebhookResponse {
   success: boolean;
   data?: any;
@@ -21,9 +20,13 @@ export abstract class BaseWebhookService {
         method,
         headers: {
           'Content-Type': 'application/json',
+          // Add CORS headers to handle potential CORS issues
+          'Accept': 'application/json',
         },
         // Add timeout to prevent long-hanging requests
-        signal: AbortSignal.timeout(10000), // 10 second timeout
+        signal: AbortSignal.timeout(15000), // Increased to 15 second timeout
+        mode: 'cors', // Explicitly set CORS mode
+        credentials: 'omit', // Don't send credentials
       };
       
       if (method === 'GET' && payload) {
@@ -46,7 +49,26 @@ export abstract class BaseWebhookService {
         try {
           attempts++;
           const response = await fetch(finalUrl, options);
-          const data = await response.json();
+          
+          // Check for successful response
+          if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+          }
+          
+          // Try to parse the response as JSON
+          let data;
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+          } else {
+            data = await response.text();
+            try {
+              // Try to parse text as JSON if possible
+              data = JSON.parse(data);
+            } catch (e) {
+              // Keep as text if not valid JSON
+            }
+          }
           
           console.log(`Webhook response from ${url}:`, data);
           
@@ -61,7 +83,7 @@ export abstract class BaseWebhookService {
           
           console.warn(`Attempt ${attempts} failed, retrying...`, fetchError);
           // Wait before retrying (exponential backoff)
-          await new Promise(r => setTimeout(r, 1000 * attempts));
+          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempts - 1)));
         }
       }
       
