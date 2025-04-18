@@ -1,3 +1,4 @@
+
 export interface WebhookResponse {
   success: boolean;
   data?: any;
@@ -51,6 +52,7 @@ export abstract class BaseWebhookService {
       while (attempts < maxAttempts) {
         try {
           attempts++;
+          console.log(`Attempt ${attempts} to fetch from ${finalUrl}`);
           const response = await fetch(finalUrl, options);
           
           // Check for successful response
@@ -80,6 +82,8 @@ export abstract class BaseWebhookService {
             data
           };
         } catch (fetchError) {
+          console.error(`Fetch attempt ${attempts} failed:`, fetchError);
+          
           if (attempts >= maxAttempts) {
             throw fetchError; // Re-throw if we've reached max attempts
           }

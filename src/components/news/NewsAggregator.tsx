@@ -36,6 +36,7 @@ export function NewsAggregator() {
           variant: "destructive",
         });
       } else {
+        console.log('Successfully sent date to webhook:', response);
         toast({
           title: "Success",
           description: "Date selection was updated and new articles fetched.",
@@ -70,6 +71,8 @@ export function NewsAggregator() {
       // Send the current selected date to the webhook when refreshing
       if (selectedDate) {
         const webhookResponse = await sendDateToWebhook(selectedDate);
+        console.log('Webhook response received:', webhookResponse);
+        
         // If the webhook was successful and returned articles, use those instead
         if (webhookResponse.success && 
             webhookResponse.data && 
@@ -122,7 +125,7 @@ export function NewsAggregator() {
           setNewsArticles(validatedArticles);
           console.log('Successfully loaded articles directly from webhook:', validatedArticles);
         } else {
-          console.warn('Webhook response was successful but no valid articles found, using dummy data.');
+          console.warn('Webhook response was successful but no valid articles found, using dummy data:', webhookResponse);
           toast({
             title: "Notice",
             description: "Could not retrieve articles from the server. Using sample data instead.",
@@ -148,27 +151,29 @@ export function NewsAggregator() {
     fetchNewsData();
   }, [fetchNewsData]);
   
-  const handleDateChange = async (date: Date | undefined) => {
+  // Fix: Separate the date change from fetching to avoid race conditions
+  const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
     setSelectedDate(date);
+    
+    // Don't try to fetch immediately - let the selectedDate effect handle it
+    if (!date) {
+      return;
+    }
+    
+    // Set loading state here to give immediate feedback
     setIsLoading(true);
     
-    try {
-      if (date) {
-        await sendDateToWebhook(date);
-      }
-      await fetchNewsData();
-    } catch (error) {
-      console.error('Error in handleDateChange:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update with the new date selection.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    // Let the effect trigger fetchNewsData
+  }, []);
+  
+  // Add an effect to trigger fetchNewsData when selectedDate changes
+  useEffect(() => {
+    if (selectedDate) {
+      console.log("Effect triggered due to selectedDate change:", selectedDate);
+      fetchNewsData();
     }
-  };
+  }, [selectedDate, fetchNewsData]);
   
   // Filter articles when dependencies change
   useEffect(() => {

@@ -26,6 +26,7 @@ export const DateFilter = ({
 }: DateFilterProps) => {
   const handleDateChange = (date: Date | undefined) => {
     console.log("DateFilter: Date selected:", date);
+    // Close popover programmatically after selection to prevent interaction issues
     onDateChange(date);
   };
 
