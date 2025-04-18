@@ -20,13 +20,12 @@ export abstract class BaseWebhookService {
         method,
         headers: {
           'Content-Type': 'application/json',
-          // Add CORS headers to handle potential CORS issues
           'Accept': 'application/json',
         },
-        // Add timeout to prevent long-hanging requests
-        signal: AbortSignal.timeout(15000), // Increased to 15 second timeout
-        mode: 'cors', // Explicitly set CORS mode
-        credentials: 'omit', // Don't send credentials
+        signal: AbortSignal.timeout(15000), // 15 second timeout
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'no-store', // Prevent caching of requests
       };
       
       if (method === 'GET' && payload) {
@@ -36,6 +35,10 @@ export abstract class BaseWebhookService {
             queryParams.append(key, String(value));
           }
         });
+        
+        // Add a cache-busting parameter to prevent browser caching
+        queryParams.append('_t', Date.now().toString());
+        
         finalUrl = `${url}?${queryParams.toString()}`;
       } else if (method === 'POST') {
         options.body = JSON.stringify(payload);

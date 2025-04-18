@@ -25,7 +25,14 @@ export const DateFilter = ({
   isLoading
 }: DateFilterProps) => {
   const handleDateChange = (date: Date | undefined) => {
+    console.log("DateFilter: Date selected:", date);
     onDateChange(date);
+  };
+
+  const handleRefresh = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("DateFilter: Manual refresh triggered");
+    onRefresh();
   };
 
   return (
@@ -33,8 +40,9 @@ export const DateFilter = ({
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium">Date Filter</h3>
         <button
-          onClick={onRefresh}
+          onClick={handleRefresh}
           className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/80"
+          aria-label="Refresh news data"
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           <span className="sr-only">Refresh</span>

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +22,43 @@ export function NewsAggregator() {
   const [isLoading, setIsLoading] = useState(false);
   const [isErrorState, setIsErrorState] = useState(false);
   
-  const fetchNewsData = async () => {
+  // Create a stable version of sendDateToWebhook to avoid recreating it on every render
+  const sendDateToWebhook = useCallback(async (date: Date) => {
+    try {
+      console.log(`Sending date to webhook: ${date.toISOString()}`);
+      const response = await N8nService.sendDateFilter(date);
+      
+      if (!response.success) {
+        console.warn('Failed to send date to webhook:', response.error);
+        toast({
+          title: "Warning",
+          description: "Date selection was updated but we couldn't fetch new articles.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Date selection was updated and new articles fetched.",
+        });
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Error sending date to webhook:', error);
+      toast({
+        title: "Warning",
+        description: "Date selection was updated but the webhook notification failed.",
+        variant: "destructive",
+      });
+      
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      };
+    }
+  }, [toast]);
+  
+  const fetchNewsData = useCallback(async () => {
     setIsLoading(true);
     setIsErrorState(false);
     
@@ -105,58 +141,36 @@ export function NewsAggregator() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedDate, sendDateToWebhook, toast]);
   
+  // Run on initial mount
   useEffect(() => {
     fetchNewsData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  
-  const sendDateToWebhook = async (date: Date) => {
-    try {
-      console.log(`Sending date to webhook: ${date.toISOString()}`);
-      const response = await N8nService.sendDateFilter(date);
-      
-      if (!response.success) {
-        console.warn('Failed to send date to webhook:', response.error);
-        toast({
-          title: "Warning",
-          description: "Date selection was updated but we couldn't fetch new articles.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Date selection was updated and new articles fetched.",
-        });
-      }
-      
-      return response;
-    } catch (error) {
-      console.error('Error sending date to webhook:', error);
-      toast({
-        title: "Warning",
-        description: "Date selection was updated but the webhook notification failed.",
-        variant: "destructive",
-      });
-      
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
-    }
-  };
+  }, [fetchNewsData]);
   
   const handleDateChange = async (date: Date | undefined) => {
+    console.log("NewsAggregator: Date changed to:", date);
     setSelectedDate(date);
-    if (date) {
-      setIsLoading(true);
-      await sendDateToWebhook(date);
+    setIsLoading(true);
+    
+    try {
+      if (date) {
+        await sendDateToWebhook(date);
+      }
       await fetchNewsData();
+    } catch (error) {
+      console.error('Error in handleDateChange:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update with the new date selection.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
     }
   };
   
+  // Filter articles when dependencies change
   useEffect(() => {
     let filtered = [...newsArticles];
     
