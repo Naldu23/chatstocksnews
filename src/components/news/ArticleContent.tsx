@@ -86,7 +86,15 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
       
       <div className="prose prose-gray dark:prose-invert max-w-none">
         {article.content ? (
-          <ReactMarkdown className="prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-p:text-base prose-a:text-primary hover:prose-a:text-primary/80">
+          <ReactMarkdown
+            components={{
+              h1: ({ node, ...props }) => <h1 className="text-3xl font-bold" {...props} />,
+              h2: ({ node, ...props }) => <h2 className="text-2xl font-bold" {...props} />,
+              h3: ({ node, ...props }) => <h3 className="text-xl font-bold" {...props} />,
+              p: ({ node, ...props }) => <p className="text-base" {...props} />,
+              a: ({ node, ...props }) => <a className="text-primary hover:text-primary/80" {...props} />
+            }}
+          >
             {article.content}
           </ReactMarkdown>
         ) : (
