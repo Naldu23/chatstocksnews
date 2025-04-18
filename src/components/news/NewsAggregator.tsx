@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -24,44 +23,6 @@ export function NewsAggregator() {
   const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
   
-  const sendDateToWebhook = useCallback(async (date: Date) => {
-    try {
-      console.log(`Sending date to webhook (Local): ${date.toLocaleDateString()}`);
-      console.log(`Sending date to webhook (ISO): ${date.toISOString()}`);
-      
-      const response = await N8nService.sendDateFilter(date);
-      
-      if (!response.success) {
-        console.warn('Failed to send date to webhook:', response.error);
-        toast({
-          title: "Warning",
-          description: "Date selection was updated but we couldn't fetch new articles.",
-          variant: "destructive",
-        });
-      } else {
-        console.log('Successfully sent date to webhook:', response);
-        toast({
-          title: "Success",
-          description: "Date selection was updated and new articles fetched.",
-        });
-      }
-      
-      return response;
-    } catch (error) {
-      console.error('Error sending date to webhook:', error);
-      toast({
-        title: "Warning",
-        description: "Date selection was updated but the webhook notification failed.",
-        variant: "destructive",
-      });
-      
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
-    }
-  }, [toast]);
-  
   const fetchNewsData = useCallback(async () => {
     setIsLoading(true);
     setIsErrorState(false);
@@ -71,64 +32,76 @@ export function NewsAggregator() {
       setNewsArticles(dummyNewsArticles);
       
       if (selectedDate) {
-        const webhookResponse = await sendDateToWebhook(selectedDate);
+        console.log(`Fetching news for date (Local): ${selectedDate.toLocaleDateString()}`);
+        console.log(`Fetching news for date (ISO): ${selectedDate.toISOString()}`);
+        
+        const webhookResponse = await N8nService.sendDateFilter(selectedDate);
         console.log('Webhook response received:', webhookResponse);
         
-        if (webhookResponse.success && 
-            webhookResponse.data && 
-            Array.isArray(webhookResponse.data) && 
-            webhookResponse.data.length > 0 && 
-            webhookResponse.data[0].articles && 
-            Array.isArray(webhookResponse.data[0].articles) && 
-            webhookResponse.data[0].articles.length > 0) {
-          
-          const validatedArticles = webhookResponse.data[0].articles.map((article: any) => {
-            return {
-              id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
-              title: article.title || 'Untitled Article',
-              summary: article.summary || '',
-              source: article.source || 'Unknown Source',
-              publishedAt: article.publishedAt || new Date().toISOString(),
-              url: article.url || '#',
-              imageUrl: article.imageUrl,
-              readTime: article.readTime || 5,
-              content: article.content,
-              grade: article.grade
-            } as NewsArticle;
-          });
-          
-          setNewsArticles(validatedArticles);
-          console.log('Successfully loaded articles from webhook:', validatedArticles);
-        } else if (webhookResponse.success && 
-                  webhookResponse.data && 
-                  webhookResponse.data.articles && 
-                  Array.isArray(webhookResponse.data.articles) && 
-                  webhookResponse.data.articles.length > 0) {
-          
-          const validatedArticles = webhookResponse.data.articles.map((article: any) => {
-            return {
-              id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
-              title: article.title || 'Untitled Article',
-              summary: article.summary || '',
-              source: article.source || 'Unknown Source',
-              publishedAt: article.publishedAt || new Date().toISOString(),
-              url: article.url || '#',
-              imageUrl: article.imageUrl,
-              readTime: article.readTime || 5,
-              content: article.content,
-              grade: article.grade
-            } as NewsArticle;
-          });
-          
-          setNewsArticles(validatedArticles);
-          console.log('Successfully loaded articles directly from webhook:', validatedArticles);
-        } else {
-          console.warn('Webhook response was successful but no valid articles found, using dummy data:', webhookResponse);
+        if (!webhookResponse.success) {
+          console.warn('Failed to fetch articles:', webhookResponse.error);
           toast({
-            title: "Notice",
-            description: "Could not retrieve articles from the server. Using sample data instead.",
-            variant: "default",
+            title: "Warning",
+            description: "Couldn't fetch new articles.",
+            variant: "destructive",
           });
+        } else {
+          console.log('Successfully received webhook response:', webhookResponse);
+          toast({
+            title: "Success",
+            description: "Articles fetched successfully.",
+          });
+          
+          if (webhookResponse.data && 
+              Array.isArray(webhookResponse.data) && 
+              webhookResponse.data.length > 0 && 
+              webhookResponse.data[0].articles && 
+              Array.isArray(webhookResponse.data[0].articles) && 
+              webhookResponse.data[0].articles.length > 0) {
+            
+            const validatedArticles = webhookResponse.data[0].articles.map((article: any) => ({
+              id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
+              title: article.title || 'Untitled Article',
+              summary: article.summary || '',
+              source: article.source || 'Unknown Source',
+              publishedAt: article.publishedAt || new Date().toISOString(),
+              url: article.url || '#',
+              imageUrl: article.imageUrl,
+              readTime: article.readTime || 5,
+              content: article.content,
+              grade: article.grade
+            }));
+            
+            setNewsArticles(validatedArticles);
+            console.log('Successfully loaded articles from webhook:', validatedArticles);
+          } else if (webhookResponse.data && 
+                    webhookResponse.data.articles && 
+                    Array.isArray(webhookResponse.data.articles) && 
+                    webhookResponse.data.articles.length > 0) {
+            
+            const validatedArticles = webhookResponse.data.articles.map((article: any) => ({
+              id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
+              title: article.title || 'Untitled Article',
+              summary: article.summary || '',
+              source: article.source || 'Unknown Source',
+              publishedAt: article.publishedAt || new Date().toISOString(),
+              url: article.url || '#',
+              imageUrl: article.imageUrl,
+              readTime: article.readTime || 5,
+              content: article.content,
+              grade: article.grade
+            }));
+            
+            setNewsArticles(validatedArticles);
+            console.log('Successfully loaded articles directly from webhook:', validatedArticles);
+          } else {
+            console.warn('No valid articles found in response, using dummy data:', webhookResponse);
+            toast({
+              title: "Notice",
+              description: "Could not retrieve articles from the server. Using sample data instead.",
+              variant: "default",
+            });
+          }
         }
       }
     } catch (error) {
@@ -145,12 +118,12 @@ export function NewsAggregator() {
         setIsLoading(false);
       }, 500);
     }
-  }, [selectedDate, sendDateToWebhook, toast]);
-  
+  }, [selectedDate, toast]);
+
   useEffect(() => {
     fetchNewsData();
   }, [fetchNewsData]);
-  
+
   const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
     setSelectedDate(date);
@@ -160,15 +133,16 @@ export function NewsAggregator() {
     }
     
     setIsLoading(true);
-  }, []);
-  
+    fetchNewsData();
+  }, [fetchNewsData]);
+
   useEffect(() => {
     if (selectedDate) {
       console.log("Effect triggered due to selectedDate change:", selectedDate);
       fetchNewsData();
     }
   }, [selectedDate, fetchNewsData]);
-  
+
   useEffect(() => {
     // Only filter articles when not loading
     if (isLoading) return;
@@ -206,15 +180,15 @@ export function NewsAggregator() {
     
     setFilteredArticles(filtered);
   }, [newsArticles, selectedDate, selectedGrade, searchQuery, isLoading]);
-  
+
   const handleGradeSelect = (gradeId: string) => {
     setSelectedGrade(gradeId);
   };
-  
+
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
-  
+
   const handleGradeChange = (articleId: string, grade: string) => {
     const updatedArticles = newsArticles.map(article => 
       article.id === articleId ? { ...article, grade: grade as NewsArticle['grade'] } : article
@@ -242,7 +216,7 @@ export function NewsAggregator() {
       </div>
     ));
   };
-  
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -268,7 +242,7 @@ export function NewsAggregator() {
       </div>
     );
   };
-  
+
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
       <div className="flex flex-col md:flex-row gap-6">
