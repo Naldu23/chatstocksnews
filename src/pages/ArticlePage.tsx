@@ -42,7 +42,7 @@ const ArticlePage = () => {
                 // If we got content from the service, add it to the article
                 foundArticle.content = response.data.content || foundArticle.summary;
               } else {
-                console.warn('Could not fetch article content:', response.error);
+                console.warn('Could not fetch article content:', 'Failed to get content from API');
                 // Use summary as fallback content if no content was fetched
                 foundArticle.content = foundArticle.summary;
               }
