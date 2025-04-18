@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -11,6 +10,7 @@ import SearchBar from './SearchBar';
 import NoArticlesFound from './NoArticlesFound';
 import GradeFilter from './GradeFilter';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function NewsAggregator() {
   const { toast } = useToast();
@@ -233,6 +233,22 @@ export function NewsAggregator() {
       description: `Article marked as "${grade.charAt(0).toUpperCase() + grade.slice(1)}"`,
     });
   };
+
+  // Create article loading skeletons for better UX during loading
+  const renderLoadingSkeletons = () => {
+    return Array(3).fill(0).map((_, index) => (
+      <div key={`skeleton-${index}`} className="border rounded-lg p-4 space-y-3">
+        <div className="flex gap-4">
+          <Skeleton className="h-16 w-16 rounded-md" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+        </div>
+        <Skeleton className="h-20 w-full" />
+      </div>
+    ));
+  };
   
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
@@ -265,8 +281,8 @@ export function NewsAggregator() {
         
         <div className="flex-1">
           {isLoading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+            <div className="space-y-6">
+              {renderLoadingSkeletons()}
             </div>
           ) : filteredArticles.length === 0 ? (
             <NoArticlesFound />
