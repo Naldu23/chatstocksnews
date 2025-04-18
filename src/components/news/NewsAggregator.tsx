@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -25,20 +24,13 @@ export function NewsAggregator() {
     setIsLoading(true);
     
     try {
-      // In a real implementation, you would pass selectedDate to the service
-      const response = await N8nService.fetchNewsData('all', 10);
-      
-      if (response.success && response.data) {
-        console.log('Received news data:', response.data);
-        setNewsArticles(dummyNewsArticles);
-      } else {
-        throw new Error(response.error || 'Failed to fetch news data');
-      }
+      console.log('Loading news data from dummy data');
+      setNewsArticles(dummyNewsArticles);
     } catch (error) {
-      console.error('Error fetching news data:', error);
+      console.error('Error loading news data:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch news data. Using sample data instead.",
+        description: "Failed to load news data. Using sample data instead.",
         variant: "destructive",
       });
     } finally {
@@ -54,7 +46,6 @@ export function NewsAggregator() {
   const handleDateChange = async (date: Date | undefined) => {
     setSelectedDate(date);
     try {
-      // Send the selected date to the webhook
       const response = await N8nService.sendDateFilter(date);
       console.log('Date filter webhook response:', response);
       
@@ -79,14 +70,12 @@ export function NewsAggregator() {
       });
     }
     
-    // After setting the date, refresh the news data
     fetchNewsData();
   };
   
   useEffect(() => {
     let filtered = [...newsArticles];
     
-    // Filter by date
     if (selectedDate) {
       const dayStart = startOfDay(selectedDate);
       const dayEnd = endOfDay(selectedDate);
@@ -137,7 +126,6 @@ export function NewsAggregator() {
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Left sidebar with filters */}
         <div className="w-full md:w-64 space-y-6">
           <div className="mb-6">
             <h1 className="text-2xl font-bold mb-4">News Feed</h1>
@@ -164,7 +152,6 @@ export function NewsAggregator() {
           </div>
         </div>
         
-        {/* Main content area with articles */}
         <div className="flex-1">
           {filteredArticles.length === 0 ? (
             <NoArticlesFound />
