@@ -27,13 +27,13 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
   const getGradeColor = (grade: string) => {
     switch (grade) {
       case 'critical':
-        return 'bg-rose-600'; // Ruby color
+        return 'bg-rose-600';
       case 'important':
-        return 'bg-amber-500'; // Amber-orange
+        return 'bg-amber-500';
       case 'useful':
-        return 'bg-yellow-400'; // Pure gold
+        return 'bg-yellow-400';
       case 'interesting':
-        return 'bg-neutral-400'; // Diamond grey
+        return 'bg-neutral-400';
       default:
         return 'bg-secondary';
     }
@@ -56,14 +56,6 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
           )}
           
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
-                  {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-                </span>
-              </div>
-            </div>
-            
             <h2 className="text-base font-semibold leading-tight mb-1">
               <Link 
                 to={`/article/${article.id}`} 
@@ -88,7 +80,6 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
             </div>
           </div>
           
-          {/* Grade Selection Toolbar */}
           {onGradeChange && (
             <div className="flex flex-col justify-center ml-auto">
               <div className="flex flex-col gap-1">

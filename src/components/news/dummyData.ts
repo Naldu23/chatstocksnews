@@ -1,3 +1,4 @@
+
 import { NewsArticle } from './types';
 
 export const dummyNewsArticles: NewsArticle[] = [
@@ -9,7 +10,6 @@ export const dummyNewsArticles: NewsArticle[] = [
     publishedAt: "2024-02-15T09:30:00Z",
     url: "https://example.com/pharma-breakthrough",
     imageUrl: "https://picsum.photos/400/300",
-    category: "pharmaceutical",
     readTime: 5,
     grade: "critical"
   },
@@ -21,7 +21,6 @@ export const dummyNewsArticles: NewsArticle[] = [
     publishedAt: "2024-02-14T14:20:00Z",
     url: "https://example.com/fda-approval",
     imageUrl: "https://picsum.photos/400/301",
-    category: "regulatory",
     readTime: 4,
     grade: "important"
   },
@@ -33,7 +32,6 @@ export const dummyNewsArticles: NewsArticle[] = [
     publishedAt: "2024-02-13T11:15:00Z",
     url: "https://example.com/ai-funding",
     imageUrl: "https://picsum.photos/400/302",
-    category: "technology",
     readTime: 6,
     grade: "useful"
   },
@@ -45,7 +43,6 @@ export const dummyNewsArticles: NewsArticle[] = [
     publishedAt: "2024-02-12T16:45:00Z",
     url: "https://example.com/policy-changes",
     imageUrl: "https://picsum.photos/400/303",
-    category: "regulatory",
     readTime: 7,
     grade: "interesting"
   },
@@ -57,7 +54,6 @@ export const dummyNewsArticles: NewsArticle[] = [
     publishedAt: "2024-02-11T13:00:00Z",
     url: "https://example.com/health-conference",
     imageUrl: "https://picsum.photos/400/304",
-    category: "general",
     readTime: 5,
     grade: "interesting"
   }
