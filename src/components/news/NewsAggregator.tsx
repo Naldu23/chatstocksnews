@@ -25,7 +25,9 @@ export function NewsAggregator() {
   // Create a stable version of sendDateToWebhook to avoid recreating it on every render
   const sendDateToWebhook = useCallback(async (date: Date) => {
     try {
-      console.log(`Sending date to webhook: ${date.toISOString()}`);
+      console.log(`Sending date to webhook (Local): ${date.toLocaleDateString()}`);
+      console.log(`Sending date to webhook (ISO): ${date.toISOString()}`);
+      
       const response = await N8nService.sendDateFilter(date);
       
       if (!response.success) {
@@ -186,6 +188,7 @@ export function NewsAggregator() {
       filtered = filtered.filter(article => {
         try {
           const articleDate = parseISO(article.publishedAt);
+          console.log(`Article date (${article.id}): ${articleDate.toLocaleDateString()}, comparing with selected date: ${selectedDate.toLocaleDateString()}`);
           return articleDate >= dayStart && articleDate <= dayEnd;
         } catch (error) {
           console.error(`Invalid date format for article ${article.id}:`, article.publishedAt);
