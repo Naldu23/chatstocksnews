@@ -2,7 +2,7 @@
 import { BaseWebhookService } from '../base/BaseWebhookService';
 
 export class DateFilterService extends BaseWebhookService {
-  private static readonly DATE_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/7404c6fa-5c6f-49d6-9746-c25c5fc53411';
+  private static readonly DATE_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook/7404c6fa-5c6f-49d6-9746-c25c5fc53411';
   private static instance: DateFilterService;
 
   private constructor() {
