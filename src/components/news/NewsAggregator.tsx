@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -10,6 +9,7 @@ import DateFilter from './DateFilter';
 import SearchBar from './SearchBar';
 import NoArticlesFound from './NoArticlesFound';
 import GradeFilter from './GradeFilter';
+import FeaturedArticles from './FeaturedArticles';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -24,7 +24,6 @@ export function NewsAggregator() {
   const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
   
-  // Single source of truth for fetching data
   const fetchNewsData = useCallback(async () => {
     if (!selectedDate) return;
     
@@ -46,7 +45,6 @@ export function NewsAggregator() {
           description: "Couldn't fetch new articles.",
           variant: "destructive",
         });
-        // Default to dummy data when there's an error
         setNewsArticles(dummyNewsArticles);
       } else {
         console.log('Successfully received webhook response:', webhookResponse);
@@ -117,30 +115,25 @@ export function NewsAggregator() {
         variant: "destructive",
       });
     } finally {
-      // Add a small delay before removing loading state to ensure smooth transition
       setTimeout(() => {
         setIsLoading(false);
       }, 500);
     }
   }, [selectedDate, toast]);
 
-  // Initial data load
   useEffect(() => {
     fetchNewsData();
   }, [fetchNewsData]);
 
-  // Handle date changes - simplified to only set the date
   const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
     if (date) {
-      // We'll force the date to be the start of day to avoid time-related issues
       const normalizedDate = startOfDay(date);
       setSelectedDate(normalizedDate);
-      // Data fetching is handled by the effect that watches selectedDate
+      fetchNewsData();
     }
   }, []);
 
-  // Handle date change side effects - only one effect watching selectedDate
   useEffect(() => {
     if (selectedDate) {
       console.log("Effect triggered due to selectedDate change:", selectedDate);
@@ -148,9 +141,7 @@ export function NewsAggregator() {
     }
   }, [selectedDate, fetchNewsData]);
 
-  // Filter articles when needed
   useEffect(() => {
-    // Only filter articles when not loading
     if (isLoading) return;
     
     let filtered = [...newsArticles];
@@ -279,6 +270,7 @@ export function NewsAggregator() {
         </div>
         
         <div className="flex-1">
+          {!isLoading && <FeaturedArticles articles={newsArticles} isLoading={isLoading} />}
           {renderContent()}
           
           {isErrorState && !isLoading && (
