@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -278,13 +279,13 @@ export function NewsAggregator() {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-4 md:p-6">
-      <div className="mb-12 pb-8">
+    <div className="h-full overflow-y-auto p-4 md:p-6 lg:p-8">
+      <div className="mb-16">
         <FeaturedArticles articles={featuredArticles} isLoading={isLoading} />
       </div>
       
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="w-full md:w-64 space-y-6">
+      <div className="flex flex-col md:flex-row gap-6 lg:gap-8">
+        <div className="w-full md:w-64 space-y-6 flex-shrink-0">
           <div className="mb-6">
             <h1 className="text-2xl font-bold mb-4">News Feed</h1>
             <SearchBar 

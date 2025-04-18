@@ -15,7 +15,7 @@ const NewsPage = () => {
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
       <div className="flex-1 overflow-auto">
-        <main className="h-full">
+        <main className="h-full max-w-[1600px] mx-auto">
           <NewsAggregator />
         </main>
       </div>
