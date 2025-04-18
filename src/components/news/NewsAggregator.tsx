@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -20,7 +21,7 @@ export function NewsAggregator() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading state true
   const [isErrorState, setIsErrorState] = useState(false);
   
   const sendDateToWebhook = useCallback(async (date: Date) => {
@@ -139,7 +140,10 @@ export function NewsAggregator() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      // Add a small delay before removing loading state to ensure smooth transition
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     }
   }, [selectedDate, sendDateToWebhook, toast]);
   
@@ -156,10 +160,6 @@ export function NewsAggregator() {
     }
     
     setIsLoading(true);
-    
-    if (selectedDate) {
-      fetchNewsData();
-    }
   }, []);
   
   useEffect(() => {
@@ -170,6 +170,7 @@ export function NewsAggregator() {
   }, [selectedDate, fetchNewsData]);
   
   useEffect(() => {
+    // Only filter articles when not loading
     if (isLoading) return;
     
     let filtered = [...newsArticles];
@@ -290,7 +291,7 @@ export function NewsAggregator() {
             </div>
           )}
           
-          {isErrorState && (
+          {isErrorState && !isLoading && (
             <Alert variant="destructive" className="mt-4">
               <AlertDescription>
                 <p className="font-medium">There was an error connecting to the news service.</p>
