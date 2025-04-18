@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -23,9 +22,7 @@ export function NewsAggregator() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isErrorState, setIsErrorState] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
   
-  // Create a stable version of sendDateToWebhook to avoid recreating it on every render
   const sendDateToWebhook = useCallback(async (date: Date) => {
     try {
       console.log(`Sending date to webhook (Local): ${date.toLocaleDateString()}`);
@@ -70,15 +67,12 @@ export function NewsAggregator() {
     
     try {
       console.log('Loading news data...');
-      // Always load the dummy data first to ensure we have something to display
       setNewsArticles(dummyNewsArticles);
       
-      // Send the current selected date to the webhook when refreshing
       if (selectedDate) {
         const webhookResponse = await sendDateToWebhook(selectedDate);
         console.log('Webhook response received:', webhookResponse);
         
-        // If the webhook was successful and returned articles, use those instead
         if (webhookResponse.success && 
             webhookResponse.data && 
             Array.isArray(webhookResponse.data) && 
@@ -87,7 +81,6 @@ export function NewsAggregator() {
             Array.isArray(webhookResponse.data[0].articles) && 
             webhookResponse.data[0].articles.length > 0) {
           
-          // Validate the articles received to ensure they match our expected format
           const validatedArticles = webhookResponse.data[0].articles.map((article: any) => {
             return {
               id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
@@ -111,7 +104,6 @@ export function NewsAggregator() {
                   Array.isArray(webhookResponse.data.articles) && 
                   webhookResponse.data.articles.length > 0) {
           
-          // Direct articles array format
           const validatedArticles = webhookResponse.data.articles.map((article: any) => {
             return {
               id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
@@ -148,32 +140,28 @@ export function NewsAggregator() {
       });
     } finally {
       setIsLoading(false);
-      setInitialLoad(false);
     }
   }, [selectedDate, sendDateToWebhook, toast]);
   
-  // Run on initial mount
   useEffect(() => {
     fetchNewsData();
   }, [fetchNewsData]);
   
-  // Fix: Separate the date change from fetching to avoid race conditions
   const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
     setSelectedDate(date);
     
-    // Don't try to fetch immediately - let the selectedDate effect handle it
     if (!date) {
       return;
     }
     
-    // Set loading state here to give immediate feedback
     setIsLoading(true);
     
-    // Let the effect trigger fetchNewsData
+    if (selectedDate) {
+      fetchNewsData();
+    }
   }, []);
   
-  // Add an effect to trigger fetchNewsData when selectedDate changes
   useEffect(() => {
     if (selectedDate) {
       console.log("Effect triggered due to selectedDate change:", selectedDate);
@@ -181,10 +169,9 @@ export function NewsAggregator() {
     }
   }, [selectedDate, fetchNewsData]);
   
-  // Filter articles when dependencies change
   useEffect(() => {
-    if (isLoading) return; // Don't update filtered articles while loading
-
+    if (isLoading) return;
+    
     let filtered = [...newsArticles];
     
     if (selectedDate) {
@@ -240,7 +227,6 @@ export function NewsAggregator() {
     });
   };
 
-  // Create article loading skeletons for better UX during loading
   const renderLoadingSkeletons = () => {
     return Array(3).fill(0).map((_, index) => (
       <div key={`skeleton-${index}`} className="border rounded-lg p-4 space-y-3">
@@ -255,8 +241,6 @@ export function NewsAggregator() {
       </div>
     ));
   };
-  
-  const showNoArticlesFound = !isLoading && filteredArticles.length === 0 && !initialLoad;
   
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
@@ -292,7 +276,7 @@ export function NewsAggregator() {
             <div className="space-y-6">
               {renderLoadingSkeletons()}
             </div>
-          ) : showNoArticlesFound ? (
+          ) : filteredArticles.length === 0 ? (
             <NoArticlesFound />
           ) : (
             <div className="space-y-6">
