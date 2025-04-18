@@ -1,11 +1,10 @@
-
 interface WebhookResponse {
   success: boolean;
   data?: any;
   error?: string;
 }
 
-export type WebhookType = 'chat' | 'research' | 'report' | 'stocks' | 'news' | 'stocksOverview' | 'trendingStocks' | 'dateFilter';
+export type WebhookType = 'chat' | 'research' | 'report' | 'stocks' | 'stocksOverview' | 'trendingStocks' | 'dateFilter';
 
 const N8N_BASE_URL = 'https://n8n.bioking.kr';
 const N8N_DATE_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/7404c6fa-5c6f-49d6-9746-c25c5fc53411';
@@ -33,8 +32,7 @@ export class N8nService {
       chat: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
       research: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
       report: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
-      stocks: 'webhook-test/2', 
-      news: 'webhook-test/3',
+      stocks: 'webhook-test/2',
       stocksOverview: 'webhook-test/e7811fb4-17f2-4660-9f96-be1cbbebe029',
       trendingStocks: 'webhook-test/trending-stocks',
       dateFilter: 'webhook-test/7404c6fa-5c6f-49d6-9746-c25c5fc53411'
@@ -176,10 +174,6 @@ export class N8nService {
   
   public static async fetchStockData(symbol: string, timeframe: string): Promise<WebhookResponse> {
     return N8nService.getInstance().sendWebhookRequest('stocks', { symbol, timeframe }, 'GET');
-  }
-  
-  public static async fetchNewsData(category: string, count: number): Promise<WebhookResponse> {
-    return N8nService.getInstance().sendWebhookRequest('news', { category, count }, 'GET');
   }
   
   public static async sendStocksOverviewVisit(userAgent: string): Promise<WebhookResponse> {
