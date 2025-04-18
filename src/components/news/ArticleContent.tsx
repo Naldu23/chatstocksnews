@@ -37,9 +37,11 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
-            {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-          </span>
+          {article.grade && (
+            <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+              {article.grade.charAt(0).toUpperCase() + article.grade.slice(1)}
+            </span>
+          )}
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="sm">
               <Bookmark className="h-4 w-4 mr-2" />
