@@ -1,3 +1,4 @@
+
 interface WebhookResponse {
   success: boolean;
   data?: any;
@@ -68,10 +69,12 @@ export class N8nService {
       if (method === 'GET' && payload) {
         const queryParams = new URLSearchParams();
         Object.entries(payload).forEach(([key, value]) => {
-          queryParams.append(key, String(value));
+          if (value !== null && value !== undefined) {
+            queryParams.append(key, String(value));
+          }
         });
         url = `${url}?${queryParams.toString()}`;
-      } else {
+      } else if (method === 'POST') {
         options.body = JSON.stringify(payload);
       }
       
@@ -172,11 +175,11 @@ export class N8nService {
   }
   
   public static async fetchStockData(symbol: string, timeframe: string): Promise<WebhookResponse> {
-    return N8nService.getInstance().sendWebhookRequest('stocks', { symbol, timeframe });
+    return N8nService.getInstance().sendWebhookRequest('stocks', { symbol, timeframe }, 'GET');
   }
   
   public static async fetchNewsData(category: string, count: number): Promise<WebhookResponse> {
-    return N8nService.getInstance().sendWebhookRequest('news', { category, count });
+    return N8nService.getInstance().sendWebhookRequest('news', { category, count }, 'GET');
   }
   
   public static async sendStocksOverviewVisit(userAgent: string): Promise<WebhookResponse> {
@@ -188,7 +191,7 @@ export class N8nService {
   }
   
   public static async fetchTrendingStocks(): Promise<WebhookResponse> {
-    return N8nService.getInstance().sendWebhookRequest('trendingStocks', {});
+    return N8nService.getInstance().sendWebhookRequest('trendingStocks', {}, 'GET');
   }
   
   public static async sendDateFilter(date: Date | undefined): Promise<WebhookResponse> {
@@ -196,7 +199,7 @@ export class N8nService {
     return N8nService.getInstance().sendWebhookRequest('dateFilter', { 
       date: formattedDate,
       timestamp: new Date().toISOString()
-    }, 'POST');
+    }, 'GET');
   }
 }
 
