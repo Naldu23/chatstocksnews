@@ -26,11 +26,36 @@ export function NewsAggregator() {
     
     try {
       console.log('Loading news data from dummy data');
+      // Always load the dummy data first to ensure we have something to display
       setNewsArticles(dummyNewsArticles);
       
       // Send the current selected date to the webhook when refreshing
       if (selectedDate) {
-        await sendDateToWebhook(selectedDate);
+        const webhookResponse = await sendDateToWebhook(selectedDate);
+        // If the webhook was successful and returned articles, use those instead
+        if (webhookResponse.success && 
+            webhookResponse.data && 
+            webhookResponse.data.articles && 
+            webhookResponse.data.articles.length > 0) {
+          // Validate the articles received to ensure they match our expected format
+          const validatedArticles = webhookResponse.data.articles.map((article: any) => {
+            return {
+              id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
+              title: article.title || 'Untitled Article',
+              summary: article.summary || '',
+              source: article.source || 'Unknown Source',
+              publishedAt: article.publishedAt || new Date().toISOString(),
+              url: article.url || '#',
+              imageUrl: article.imageUrl,
+              readTime: article.readTime || 5,
+              content: article.content,
+              grade: article.grade
+            } as NewsArticle;
+          });
+          
+          setNewsArticles(validatedArticles);
+          console.log('Successfully loaded articles from webhook:', validatedArticles);
+        }
       }
     } catch (error) {
       console.error('Error loading news data:', error);
@@ -51,10 +76,26 @@ export function NewsAggregator() {
   
   const sendDateToWebhook = async (date: Date) => {
     try {
-      const response = await N8nService.sendDateFilter(date);
-      console.log('Date filter webhook response:', response);
+      // Add retry mechanism with maximum 3 attempts
+      let attempts = 0;
+      const maxAttempts = 3;
+      let response;
+      
+      do {
+        attempts++;
+        console.log(`Attempt ${attempts} to send date to webhook`);
+        response = await N8nService.sendDateFilter(date);
+        
+        if (response.success) break;
+        
+        // Wait before retrying
+        if (attempts < maxAttempts) {
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      } while (attempts < maxAttempts && !response.success);
       
       if (!response.success) {
+        console.warn(`Failed to send date to webhook after ${maxAttempts} attempts`);
         toast({
           title: "Warning",
           description: "Date selection was updated but the webhook notification failed.",
@@ -66,6 +107,8 @@ export function NewsAggregator() {
           description: "Date selection was updated and notification sent.",
         });
       }
+      
+      return response;
     } catch (error) {
       console.error('Error sending date to webhook:', error);
       toast({
@@ -73,6 +116,11 @@ export function NewsAggregator() {
         description: "Date selection was updated but the webhook notification failed.",
         variant: "destructive",
       });
+      
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      };
     }
   };
   
