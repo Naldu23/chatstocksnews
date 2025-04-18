@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -11,6 +12,7 @@ import NoArticlesFound from './NoArticlesFound';
 import GradeFilter from './GradeFilter';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function NewsAggregator() {
   const { toast } = useToast();
@@ -21,6 +23,7 @@ export function NewsAggregator() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isErrorState, setIsErrorState] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
   
   // Create a stable version of sendDateToWebhook to avoid recreating it on every render
   const sendDateToWebhook = useCallback(async (date: Date) => {
@@ -145,6 +148,7 @@ export function NewsAggregator() {
       });
     } finally {
       setIsLoading(false);
+      setInitialLoad(false);
     }
   }, [selectedDate, sendDateToWebhook, toast]);
   
@@ -179,6 +183,8 @@ export function NewsAggregator() {
   
   // Filter articles when dependencies change
   useEffect(() => {
+    if (isLoading) return; // Don't update filtered articles while loading
+
     let filtered = [...newsArticles];
     
     if (selectedDate) {
@@ -211,7 +217,7 @@ export function NewsAggregator() {
     }
     
     setFilteredArticles(filtered);
-  }, [newsArticles, selectedDate, selectedGrade, searchQuery]);
+  }, [newsArticles, selectedDate, selectedGrade, searchQuery, isLoading]);
   
   const handleGradeSelect = (gradeId: string) => {
     setSelectedGrade(gradeId);
@@ -250,6 +256,8 @@ export function NewsAggregator() {
     ));
   };
   
+  const showNoArticlesFound = !isLoading && filteredArticles.length === 0 && !initialLoad;
+  
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
       <div className="flex flex-col md:flex-row gap-6">
@@ -284,7 +292,7 @@ export function NewsAggregator() {
             <div className="space-y-6">
               {renderLoadingSkeletons()}
             </div>
-          ) : filteredArticles.length === 0 ? (
+          ) : showNoArticlesFound ? (
             <NoArticlesFound />
           ) : (
             <div className="space-y-6">
@@ -299,10 +307,12 @@ export function NewsAggregator() {
           )}
           
           {isErrorState && (
-            <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md">
-              <p className="font-medium">There was an error connecting to the news service.</p>
-              <p className="text-sm mt-1">Showing sample articles instead. You can try refreshing the data.</p>
-            </div>
+            <Alert variant="destructive" className="mt-4">
+              <AlertDescription>
+                <p className="font-medium">There was an error connecting to the news service.</p>
+                <p className="text-sm mt-1">Showing sample articles instead. You can try refreshing the data.</p>
+              </AlertDescription>
+            </Alert>
           )}
         </div>
       </div>
