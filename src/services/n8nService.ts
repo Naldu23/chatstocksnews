@@ -1,5 +1,3 @@
-import { WebhookResponse, WebhookType } from './types';
-
 interface WebhookResponse {
   success: boolean;
   data?: any;
