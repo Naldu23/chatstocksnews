@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -23,90 +24,93 @@ export function NewsAggregator() {
   const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
   
+  // Single source of truth for fetching data
   const fetchNewsData = useCallback(async () => {
+    if (!selectedDate) return;
+    
     setIsLoading(true);
     setIsErrorState(false);
     
     try {
       console.log('Loading news data...');
-      setNewsArticles(dummyNewsArticles);
+      console.log(`Fetching news for date (Local): ${selectedDate.toLocaleDateString()}`);
+      console.log(`Fetching news for date (ISO): ${selectedDate.toISOString()}`);
       
-      if (selectedDate) {
-        console.log(`Fetching news for date (Local): ${selectedDate.toLocaleDateString()}`);
-        console.log(`Fetching news for date (ISO): ${selectedDate.toISOString()}`);
+      const webhookResponse = await N8nService.sendDateFilter(selectedDate);
+      console.log('Webhook response received:', webhookResponse);
+      
+      if (!webhookResponse.success) {
+        console.warn('Failed to fetch articles:', webhookResponse.error);
+        toast({
+          title: "Warning",
+          description: "Couldn't fetch new articles.",
+          variant: "destructive",
+        });
+        // Default to dummy data when there's an error
+        setNewsArticles(dummyNewsArticles);
+      } else {
+        console.log('Successfully received webhook response:', webhookResponse);
+        toast({
+          title: "Success",
+          description: "Articles fetched successfully.",
+        });
         
-        const webhookResponse = await N8nService.sendDateFilter(selectedDate);
-        console.log('Webhook response received:', webhookResponse);
-        
-        if (!webhookResponse.success) {
-          console.warn('Failed to fetch articles:', webhookResponse.error);
-          toast({
-            title: "Warning",
-            description: "Couldn't fetch new articles.",
-            variant: "destructive",
-          });
-        } else {
-          console.log('Successfully received webhook response:', webhookResponse);
-          toast({
-            title: "Success",
-            description: "Articles fetched successfully.",
-          });
+        if (webhookResponse.data && 
+            Array.isArray(webhookResponse.data) && 
+            webhookResponse.data.length > 0 && 
+            webhookResponse.data[0].articles && 
+            Array.isArray(webhookResponse.data[0].articles) && 
+            webhookResponse.data[0].articles.length > 0) {
           
-          if (webhookResponse.data && 
-              Array.isArray(webhookResponse.data) && 
-              webhookResponse.data.length > 0 && 
-              webhookResponse.data[0].articles && 
-              Array.isArray(webhookResponse.data[0].articles) && 
-              webhookResponse.data[0].articles.length > 0) {
-            
-            const validatedArticles = webhookResponse.data[0].articles.map((article: any) => ({
-              id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
-              title: article.title || 'Untitled Article',
-              summary: article.summary || '',
-              source: article.source || 'Unknown Source',
-              publishedAt: article.publishedAt || new Date().toISOString(),
-              url: article.url || '#',
-              imageUrl: article.imageUrl,
-              readTime: article.readTime || 5,
-              content: article.content,
-              grade: article.grade
-            }));
-            
-            setNewsArticles(validatedArticles);
-            console.log('Successfully loaded articles from webhook:', validatedArticles);
-          } else if (webhookResponse.data && 
-                    webhookResponse.data.articles && 
-                    Array.isArray(webhookResponse.data.articles) && 
-                    webhookResponse.data.articles.length > 0) {
-            
-            const validatedArticles = webhookResponse.data.articles.map((article: any) => ({
-              id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
-              title: article.title || 'Untitled Article',
-              summary: article.summary || '',
-              source: article.source || 'Unknown Source',
-              publishedAt: article.publishedAt || new Date().toISOString(),
-              url: article.url || '#',
-              imageUrl: article.imageUrl,
-              readTime: article.readTime || 5,
-              content: article.content,
-              grade: article.grade
-            }));
-            
-            setNewsArticles(validatedArticles);
-            console.log('Successfully loaded articles directly from webhook:', validatedArticles);
-          } else {
-            console.warn('No valid articles found in response, using dummy data:', webhookResponse);
-            toast({
-              title: "Notice",
-              description: "Could not retrieve articles from the server. Using sample data instead.",
-              variant: "default",
-            });
-          }
+          const validatedArticles = webhookResponse.data[0].articles.map((article: any) => ({
+            id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
+            title: article.title || 'Untitled Article',
+            summary: article.summary || '',
+            source: article.source || 'Unknown Source',
+            publishedAt: article.publishedAt || new Date().toISOString(),
+            url: article.url || '#',
+            imageUrl: article.imageUrl,
+            readTime: article.readTime || 5,
+            content: article.content,
+            grade: article.grade
+          }));
+          
+          setNewsArticles(validatedArticles);
+          console.log('Successfully loaded articles from webhook:', validatedArticles);
+        } else if (webhookResponse.data && 
+                  webhookResponse.data.articles && 
+                  Array.isArray(webhookResponse.data.articles) && 
+                  webhookResponse.data.articles.length > 0) {
+          
+          const validatedArticles = webhookResponse.data.articles.map((article: any) => ({
+            id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
+            title: article.title || 'Untitled Article',
+            summary: article.summary || '',
+            source: article.source || 'Unknown Source',
+            publishedAt: article.publishedAt || new Date().toISOString(),
+            url: article.url || '#',
+            imageUrl: article.imageUrl,
+            readTime: article.readTime || 5,
+            content: article.content,
+            grade: article.grade
+          }));
+          
+          setNewsArticles(validatedArticles);
+          console.log('Successfully loaded articles directly from webhook:', validatedArticles);
+        } else {
+          console.warn('No valid articles found in response, using dummy data:', webhookResponse);
+          setNewsArticles(dummyNewsArticles);
+          toast({
+            title: "Notice",
+            description: "Could not retrieve articles from the server. Using sample data instead.",
+            variant: "default",
+          });
         }
       }
     } catch (error) {
       console.error('Error loading news data:', error);
       setIsErrorState(true);
+      setNewsArticles(dummyNewsArticles);
       toast({
         title: "Error",
         description: "Failed to load news data. Using sample data instead.",
@@ -120,22 +124,23 @@ export function NewsAggregator() {
     }
   }, [selectedDate, toast]);
 
+  // Initial data load
   useEffect(() => {
     fetchNewsData();
   }, [fetchNewsData]);
 
+  // Handle date changes - simplified to only set the date
   const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
-    setSelectedDate(date);
-    
-    if (!date) {
-      return;
+    if (date) {
+      // We'll force the date to be the start of day to avoid time-related issues
+      const normalizedDate = startOfDay(date);
+      setSelectedDate(normalizedDate);
+      // Data fetching is handled by the effect that watches selectedDate
     }
-    
-    setIsLoading(true);
-    fetchNewsData();
-  }, [fetchNewsData]);
+  }, []);
 
+  // Handle date change side effects - only one effect watching selectedDate
   useEffect(() => {
     if (selectedDate) {
       console.log("Effect triggered due to selectedDate change:", selectedDate);
@@ -143,6 +148,7 @@ export function NewsAggregator() {
     }
   }, [selectedDate, fetchNewsData]);
 
+  // Filter articles when needed
   useEffect(() => {
     // Only filter articles when not loading
     if (isLoading) return;

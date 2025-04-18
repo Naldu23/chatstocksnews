@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Calendar as CalendarIcon, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,16 @@ export const DateFilter = ({
   onRefresh,
   isLoading
 }: DateFilterProps) => {
+  // Ensure we always have a default date
+  const displayDate = selectedDate || new Date();
+  
+  // Force the selection of a date on first render if none is selected
+  useEffect(() => {
+    if (!selectedDate) {
+      onDateChange(new Date());
+    }
+  }, [selectedDate, onDateChange]);
+
   const handleDateChange = (date: Date | undefined) => {
     // Only allow selecting a date, prevent deselection
     if (date) {
@@ -34,12 +44,10 @@ export const DateFilter = ({
 
   const handleRefresh = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     console.log("DateFilter: Manual refresh triggered");
     onRefresh();
   };
-
-  // Ensure we always have a date by defaulting to today if no date is selected
-  const displayDate = selectedDate || new Date();
 
   return (
     <div className="space-y-3">
