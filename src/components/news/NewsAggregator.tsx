@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -17,12 +18,52 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 export function NewsAggregator() {
   const { toast } = useToast();
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(dummyNewsArticles);
+  const [featuredArticles, setFeaturedArticles] = useState<NewsArticle[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>(dummyNewsArticles);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
+  
+  // Fetch featured articles once on component mount
+  useEffect(() => {
+    const fetchFeaturedArticles = async () => {
+      try {
+        // Using today's date for featured articles
+        const today = new Date();
+        console.log('Fetching featured articles for today');
+        
+        const webhookResponse = await N8nService.sendDateFilter(today);
+        
+        if (webhookResponse.success && webhookResponse.data) {
+          let articles: NewsArticle[] = [];
+          
+          if (Array.isArray(webhookResponse.data) && 
+              webhookResponse.data.length > 0 && 
+              webhookResponse.data[0].articles) {
+            articles = webhookResponse.data[0].articles;
+          } else if (webhookResponse.data.articles) {
+            articles = webhookResponse.data.articles;
+          }
+          
+          if (articles.length > 0) {
+            setFeaturedArticles(articles);
+            console.log('Featured articles loaded:', articles.length);
+          } else {
+            setFeaturedArticles(dummyNewsArticles);
+          }
+        } else {
+          setFeaturedArticles(dummyNewsArticles);
+        }
+      } catch (error) {
+        console.error('Error loading featured articles:', error);
+        setFeaturedArticles(dummyNewsArticles);
+      }
+    };
+    
+    fetchFeaturedArticles();
+  }, []);
   
   const fetchNewsData = useCallback(async () => {
     if (!selectedDate) return;
@@ -130,7 +171,6 @@ export function NewsAggregator() {
     if (date) {
       const normalizedDate = startOfDay(date);
       setSelectedDate(normalizedDate);
-      fetchNewsData();
     }
   }, []);
 
@@ -242,11 +282,9 @@ export function NewsAggregator() {
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
-      {!isLoading && (
-        <div className="mb-8 border-b pb-8">
-          <FeaturedArticles articles={newsArticles} isLoading={isLoading} />
-        </div>
-      )}
+      <div className="mb-8 border-b pb-8">
+        <FeaturedArticles articles={featuredArticles} isLoading={isLoading} />
+      </div>
       
       <div className="flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-64 space-y-6">
