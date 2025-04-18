@@ -86,7 +86,9 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
       
       <div className="prose prose-gray dark:prose-invert max-w-none">
         {article.content ? (
-          <ReactMarkdown>{article.content}</ReactMarkdown>
+          <ReactMarkdown className="prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-p:text-base prose-a:text-primary hover:prose-a:text-primary/80">
+            {article.content}
+          </ReactMarkdown>
         ) : (
           <p className="text-lg">{article.summary}</p>
         )}
