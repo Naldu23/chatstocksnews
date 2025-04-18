@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -26,6 +27,11 @@ export function NewsAggregator() {
     try {
       console.log('Loading news data from dummy data');
       setNewsArticles(dummyNewsArticles);
+      
+      // Send the current selected date to the webhook when refreshing
+      if (selectedDate) {
+        await sendDateToWebhook(selectedDate);
+      }
     } catch (error) {
       console.error('Error loading news data:', error);
       toast({
@@ -43,8 +49,7 @@ export function NewsAggregator() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
-  const handleDateChange = async (date: Date | undefined) => {
-    setSelectedDate(date);
+  const sendDateToWebhook = async (date: Date) => {
     try {
       const response = await N8nService.sendDateFilter(date);
       console.log('Date filter webhook response:', response);
@@ -68,6 +73,13 @@ export function NewsAggregator() {
         description: "Date selection was updated but the webhook notification failed.",
         variant: "destructive",
       });
+    }
+  };
+  
+  const handleDateChange = async (date: Date | undefined) => {
+    setSelectedDate(date);
+    if (date) {
+      await sendDateToWebhook(date);
     }
     
     fetchNewsData();
