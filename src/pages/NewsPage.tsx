@@ -14,7 +14,7 @@ const NewsPage = () => {
     <div className="flex h-screen flex-col">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto">
         <main className="h-full">
           <NewsAggregator />
         </main>

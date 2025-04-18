@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -26,11 +25,9 @@ export function NewsAggregator() {
   const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
   
-  // Fetch featured articles once on component mount
   useEffect(() => {
     const fetchFeaturedArticles = async () => {
       try {
-        // Using today's date for featured articles
         const today = new Date();
         console.log('Fetching featured articles for today');
         
@@ -282,7 +279,7 @@ export function NewsAggregator() {
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
-      <div className="mb-8 border-b pb-8">
+      <div className="mb-12 pb-8">
         <FeaturedArticles articles={featuredArticles} isLoading={isLoading} />
       </div>
       

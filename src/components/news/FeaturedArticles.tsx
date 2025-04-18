@@ -26,12 +26,12 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
   };
 
   return (
-    <div className="w-full mb-8">
+    <div className="w-full mb-12">
       <h2 className="text-2xl font-bold mb-6">Featured Articles</h2>
       
       <div className="grid grid-cols-12 gap-6 h-[600px]">
         {/* Main featured article - spans 6 columns and full height */}
-        <div className="col-span-6 h-full">
+        <div className="col-span-12 md:col-span-6 h-full">
           {articles[0] && (
             <Card className="h-full overflow-hidden">
               <CardContent className="p-0 h-full">
@@ -76,7 +76,7 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
         </div>
 
         {/* Right side grid - 2x2 layout */}
-        <div className="col-span-6 grid grid-cols-2 grid-rows-2 gap-6 h-full">
+        <div className="col-span-12 md:col-span-6 grid grid-cols-2 grid-rows-2 gap-6 h-full">
           {articles.slice(1, 5).map((article, index) => (
             <Card key={article.id} className="h-full overflow-hidden">
               <CardContent className="p-0 h-full">
@@ -116,7 +116,7 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
         </div>
 
         {/* Bottom row - 3 equal columns */}
-        <div className="col-span-12 grid grid-cols-3 gap-6">
+        <div className="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           {articles.slice(5, 8).map((article) => (
             <Card key={article.id} className="overflow-hidden">
               <CardContent className="p-0">
@@ -160,4 +160,3 @@ export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps)
 };
 
 export default FeaturedArticles;
-
