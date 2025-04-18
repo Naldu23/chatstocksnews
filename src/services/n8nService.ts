@@ -1,3 +1,5 @@
+import { WebhookResponse, WebhookType } from './types';
+
 interface WebhookResponse {
   success: boolean;
   data?: any;
@@ -6,7 +8,7 @@ interface WebhookResponse {
 
 export type WebhookType = 'chat' | 'research' | 'report' | 'stocks' | 'news' | 'stocksOverview' | 'trendingStocks' | 'dateFilter';
 
-const N8N_BASE_URL = 'https://naldu.app.n8n.cloud';
+const N8N_BASE_URL = 'https://n8n.bioking.kr';
 const N8N_DATE_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/7404c6fa-5c6f-49d6-9746-c25c5fc53411';
 
 /**
@@ -30,12 +32,12 @@ export class N8nService {
   private getWebhookUrl(type: WebhookType): string {
     const endpoints = {
       chat: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
-      research: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb', // Use same endpoint for now
-      report: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb', // Use same endpoint for now
+      research: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
+      report: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
       stocks: 'webhook-test/2', 
       news: 'webhook-test/3',
       stocksOverview: 'webhook-test/e7811fb4-17f2-4660-9f96-be1cbbebe029',
-      trendingStocks: 'webhook-test/trending-stocks', // Placeholder endpoint for trending stocks
+      trendingStocks: 'webhook-test/trending-stocks',
       dateFilter: 'webhook-test/7404c6fa-5c6f-49d6-9746-c25c5fc53411'
     };
     
@@ -65,7 +67,6 @@ export class N8nService {
         },
       };
       
-      // For GET requests, convert payload to query parameters
       if (method === 'GET' && payload) {
         const queryParams = new URLSearchParams();
         Object.entries(payload).forEach(([key, value]) => {
@@ -73,11 +74,9 @@ export class N8nService {
         });
         url = `${url}?${queryParams.toString()}`;
       } else {
-        // For POST requests, add the payload to the body
         options.body = JSON.stringify(payload);
       }
       
-      // Simulate response for development when endpoint doesn't exist
       if (type === 'trendingStocks') {
         console.log('Returning mock data for trending stocks');
         return this.getMockTrendingStocksResponse();
@@ -95,7 +94,6 @@ export class N8nService {
     } catch (error) {
       console.error(`Error in ${type} webhook:`, error);
       
-      // Return mock data for development when the endpoint fails
       if (type === 'trendingStocks') {
         console.log('Returning mock data for trending stocks due to error');
         return this.getMockTrendingStocksResponse();
@@ -108,11 +106,7 @@ export class N8nService {
     }
   }
   
-  /**
-   * Returns mock trending stocks data for development
-   */
   private getMockTrendingStocksResponse(): WebhookResponse {
-    // Mock data for trending stocks
     return {
       success: true,
       data: {
@@ -164,52 +158,30 @@ export class N8nService {
     };
   }
   
-  // --- Public API ---
-  
-  /**
-   * Sends a chat message to the n8n webhook
-   */
   public static async sendChatMessage(message: string, sessionId: string): Promise<WebhookResponse> {
-    // Ensure sessionId is not empty
     const safeSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     return N8nService.getInstance().sendWebhookRequest('chat', { message, sessionId: safeSessionId, type: 'chat' }, 'GET');
   }
   
-  /**
-   * Sends a research request to the n8n webhook
-   */
   public static async sendResearchRequest(message: string, sessionId: string): Promise<WebhookResponse> {
     const safeSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     return N8nService.getInstance().sendWebhookRequest('research', { message, sessionId: safeSessionId, type: 'research' }, 'GET');
   }
   
-  /**
-   * Sends a report request to the n8n webhook
-   */
   public static async sendReportRequest(message: string, sessionId: string): Promise<WebhookResponse> {
     const safeSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     return N8nService.getInstance().sendWebhookRequest('report', { message, sessionId: safeSessionId, type: 'report' }, 'GET');
   }
   
-  /**
-   * Fetches stock data via the n8n webhook
-   */
   public static async fetchStockData(symbol: string, timeframe: string): Promise<WebhookResponse> {
     return N8nService.getInstance().sendWebhookRequest('stocks', { symbol, timeframe });
   }
   
-  /**
-   * Fetches news data via the n8n webhook
-   */
   public static async fetchNewsData(category: string, count: number): Promise<WebhookResponse> {
     return N8nService.getInstance().sendWebhookRequest('news', { category, count });
   }
   
-  /**
-   * Sends stock overview page visit information to the n8n webhook
-   */
   public static async sendStocksOverviewVisit(userAgent: string): Promise<WebhookResponse> {
-    // Use GET method instead of POST (default)
     return N8nService.getInstance().sendWebhookRequest('stocksOverview', { 
       timestamp: new Date().toISOString(),
       page: 'stocks-overview',
@@ -217,16 +189,10 @@ export class N8nService {
     }, 'GET');
   }
   
-  /**
-   * Fetches trending stocks data via the n8n webhook
-   */
   public static async fetchTrendingStocks(): Promise<WebhookResponse> {
     return N8nService.getInstance().sendWebhookRequest('trendingStocks', {});
   }
   
-  /**
-   * Sends selected date to the date filter webhook
-   */
   public static async sendDateFilter(date: Date | undefined): Promise<WebhookResponse> {
     const formattedDate = date ? date.toISOString() : null;
     return N8nService.getInstance().sendWebhookRequest('dateFilter', { 
