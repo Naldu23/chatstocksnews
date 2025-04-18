@@ -25,9 +25,11 @@ export const DateFilter = ({
   isLoading
 }: DateFilterProps) => {
   const handleDateChange = (date: Date | undefined) => {
-    console.log("DateFilter: Date selected:", date);
-    // Close popover programmatically after selection to prevent interaction issues
-    onDateChange(date);
+    // Only allow selecting a date, prevent deselection
+    if (date) {
+      console.log("DateFilter: Date selected:", date);
+      onDateChange(date);
+    }
   };
 
   const handleRefresh = (e: React.MouseEvent) => {
@@ -35,6 +37,9 @@ export const DateFilter = ({
     console.log("DateFilter: Manual refresh triggered");
     onRefresh();
   };
+
+  // Ensure we always have a date by defaulting to today if no date is selected
+  const displayDate = selectedDate || new Date();
 
   return (
     <div className="space-y-3">
@@ -56,20 +61,20 @@ export const DateFilter = ({
             <Button
               variant={"outline"}
               className={cn(
-                "w-full justify-start text-left font-normal",
-                !selectedDate && "text-muted-foreground"
+                "w-full justify-start text-left font-normal"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {selectedDate ? format(selectedDate, "PPP") : <span>Select a date</span>}
+              {format(displayDate, "PPP")}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single"
-              selected={selectedDate}
+              selected={displayDate}
               onSelect={handleDateChange}
               initialFocus
+              required
               className={cn("p-3 pointer-events-auto")}
             />
           </PopoverContent>
