@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, subDays } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
 import { NewsArticle } from './types';
@@ -62,18 +62,15 @@ export function NewsAggregator() {
     fetchFeaturedArticles();
   }, []);
   
-  const fetchNewsData = useCallback(async () => {
-    if (!selectedDate) return;
-    
+  const fetchNewsData = useCallback(async (date: Date) => {
     setIsLoading(true);
     setIsErrorState(false);
     
     try {
-      console.log('Loading news data...');
-      console.log(`Fetching news for date (Local): ${selectedDate.toLocaleDateString()}`);
-      console.log(`Fetching news for date (ISO): ${selectedDate.toISOString()}`);
+      console.log(`Fetching news for date (Local): ${date.toLocaleDateString()}`);
+      console.log(`Fetching news for date (ISO): ${date.toISOString()}`);
       
-      const webhookResponse = await N8nService.sendDateFilter(selectedDate);
+      const webhookResponse = await N8nService.sendDateFilter(date);
       console.log('Webhook response received:', webhookResponse);
       
       if (!webhookResponse.success) {
@@ -85,11 +82,7 @@ export function NewsAggregator() {
         });
         setNewsArticles(dummyNewsArticles);
       } else {
-        console.log('Successfully received webhook response:', webhookResponse);
-        toast({
-          title: "Success",
-          description: "Articles fetched successfully.",
-        });
+        let articlesFound = false;
         
         if (webhookResponse.data && 
             Array.isArray(webhookResponse.data) && 
@@ -112,6 +105,7 @@ export function NewsAggregator() {
           }));
           
           setNewsArticles(validatedArticles);
+          articlesFound = true;
           console.log('Successfully loaded articles from webhook:', validatedArticles);
         } else if (webhookResponse.data && 
                   webhookResponse.data.articles && 
@@ -132,8 +126,17 @@ export function NewsAggregator() {
           }));
           
           setNewsArticles(validatedArticles);
+          articlesFound = true;
           console.log('Successfully loaded articles directly from webhook:', validatedArticles);
-        } else {
+        }
+        
+        if (!articlesFound && date.getTime() === startOfDay(new Date()).getTime()) {
+          console.log('No articles found for today, trying yesterday');
+          const yesterday = subDays(date, 1);
+          setSelectedDate(yesterday);
+          fetchNewsData(yesterday);
+          return;
+        } else if (!articlesFound) {
           console.warn('No valid articles found in response, using dummy data:', webhookResponse);
           setNewsArticles(dummyNewsArticles);
           toast({
@@ -157,11 +160,14 @@ export function NewsAggregator() {
         setIsLoading(false);
       }, 500);
     }
-  }, [selectedDate, toast]);
+  }, [toast]);
 
   useEffect(() => {
-    fetchNewsData();
-  }, [fetchNewsData]);
+    if (selectedDate) {
+      console.log("Effect triggered due to selectedDate change:", selectedDate);
+      fetchNewsData(selectedDate);
+    }
+  }, [selectedDate, fetchNewsData]);
 
   const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
@@ -170,13 +176,6 @@ export function NewsAggregator() {
       setSelectedDate(normalizedDate);
     }
   }, []);
-
-  useEffect(() => {
-    if (selectedDate) {
-      console.log("Effect triggered due to selectedDate change:", selectedDate);
-      fetchNewsData();
-    }
-  }, [selectedDate, fetchNewsData]);
 
   useEffect(() => {
     if (isLoading) return;
