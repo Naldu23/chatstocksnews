@@ -14,6 +14,7 @@ import FeaturedArticles from './FeaturedArticles';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function NewsAggregator() {
   const { toast } = useToast();
@@ -279,7 +280,7 @@ export function NewsAggregator() {
   };
 
   return (
-    <div className="h-full overflow-y-auto p-4 md:p-6 lg:p-8">
+    <div className="h-full overflow-hidden p-4 md:p-6 lg:p-8">
       <div className="mb-16">
         <FeaturedArticles articles={featuredArticles} isLoading={isLoading} />
       </div>
@@ -311,21 +312,24 @@ export function NewsAggregator() {
           </div>
         </div>
         
-        <div className="flex-1">
-          {renderContent()}
-          
-          {isErrorState && !isLoading && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertDescription>
-                <p className="font-medium">There was an error connecting to the news service.</p>
-                <p className="text-sm mt-1">Showing sample articles instead. You can try refreshing the data.</p>
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
+        <ScrollArea className="flex-1">
+          <div className="pr-4"> {/* Add right padding to accommodate scrollbar */}
+            {renderContent()}
+            
+            {isErrorState && !isLoading && (
+              <Alert variant="destructive" className="mt-4">
+                <AlertDescription>
+                  <p className="font-medium">There was an error connecting to the news service.</p>
+                  <p className="text-sm mt-1">Showing sample articles instead. You can try refreshing the data.</p>
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        </ScrollArea>
       </div>
     </div>
   );
 }
 
 export default NewsAggregator;
+
