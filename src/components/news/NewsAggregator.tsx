@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useCallback } from 'react';
-import { startOfDay, endOfDay, parseISO, subDays } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, subDays, isToday } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
 import { NewsArticle } from './types';
@@ -107,7 +108,7 @@ export function NewsAggregator() {
         
         console.warn('Failed to fetch articles:', webhookResponse.error || 'No articles available');
         
-        if (isToday && !hasTriedYesterday) {
+        if (isToday(date) && !hasTriedYesterday) {
           console.log('No articles found for today, trying yesterday');
           setHasTriedYesterday(true);
           const yesterday = subDays(date, 1);
