@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { NewsArticle } from './types';
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,10 +8,9 @@ import { format } from 'date-fns';
 interface FeaturedArticlesProps {
   articles: NewsArticle[];
   isLoading: boolean;
-  isKorean?: boolean;
 }
 
-export const FeaturedArticles = ({ articles, isLoading, isKorean = false }: FeaturedArticlesProps) => {
+export const FeaturedArticles = ({ articles, isLoading }: FeaturedArticlesProps) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, 'MMM d, yyyy');
@@ -30,12 +30,12 @@ export const FeaturedArticles = ({ articles, isLoading, isKorean = false }: Feat
       <h2 className="text-2xl font-bold mb-6">Featured Articles</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Main featured article */}
+        {/* Main featured article - spans 6 columns on larger screens */}
         <div className="md:col-span-6 h-[400px] md:h-[500px] lg:h-[600px]">
           {articles[0] && (
             <Card className="h-full overflow-hidden">
               <CardContent className="p-0 h-full">
-                <Link to={`/article/${isKorean ? 'kor' : 'us'}/${articles[0].id}`} className="block h-full">
+                <Link to={`/article/${articles[0].id}`} className="block h-full">
                   <div className="relative h-full">
                     {articles[0].imageUrl ? (
                       <img
@@ -75,12 +75,12 @@ export const FeaturedArticles = ({ articles, isLoading, isKorean = false }: Feat
           )}
         </div>
 
-        {/* Right side grid */}
+        {/* Right side grid - 2x2 layout on larger screens */}
         <div className="md:col-span-6 grid grid-cols-1 sm:grid-cols-2 grid-rows-auto sm:grid-rows-2 gap-6 h-[650px] sm:h-[500px] md:h-[500px] lg:h-[600px]">
           {articles.slice(1, 5).map((article, index) => (
             <Card key={article.id} className="h-full overflow-hidden">
               <CardContent className="p-0 h-full">
-                <Link to={`/article/${isKorean ? 'kor' : 'us'}/${article.id}`} className="block h-full">
+                <Link to={`/article/${article.id}`} className="block h-full">
                   <div className="relative h-full">
                     {article.imageUrl ? (
                       <img
@@ -115,12 +115,12 @@ export const FeaturedArticles = ({ articles, isLoading, isKorean = false }: Feat
           ))}
         </div>
 
-        {/* Bottom row */}
+        {/* Bottom row - responsive grid */}
         <div className="col-span-1 md:col-span-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2 md:mt-4">
           {articles.slice(5, 8).map((article) => (
             <Card key={article.id} className="overflow-hidden">
               <CardContent className="p-0">
-                <Link to={`/article/${isKorean ? 'kor' : 'us'}/${article.id}`} className="block">
+                <Link to={`/article/${article.id}`} className="block">
                   <div className="relative aspect-[16/9]">
                     {article.imageUrl ? (
                       <img
