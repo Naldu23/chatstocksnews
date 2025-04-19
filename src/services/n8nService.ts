@@ -1,7 +1,7 @@
 
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
-import { chatService, WebhookImportance } from './chat/ChatService';
+import { chatService } from './chat/ChatService';
 
 export class N8nService {
   // Date filter methods
@@ -96,7 +96,7 @@ More content paragraphs would go here. This is just a sample of what the markdow
         console.log(`Fetching Korean news with selected date: ${date.toLocaleDateString()}, adjusted date: ${normalizedDate.toLocaleDateString()}, formatted: ${formattedDate}`);
       }
       
-      const response = await fetch(`${webhookUrl}?timestamp=${timestamp}${dateParam}&userAgent=${encodeURIComponent(userAgent)}&importance=${WebhookImportance.IMPORTANT}`, {
+      const response = await fetch(`${webhookUrl}?timestamp=${timestamp}${dateParam}&userAgent=${encodeURIComponent(userAgent)}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -121,7 +121,7 @@ More content paragraphs would go here. This is just a sample of what the markdow
       const timestamp = new Date().getTime();
       const userAgent = navigator.userAgent;
       
-      const response = await fetch(`${webhookUrl}?message=Featured+Articles&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}&importance=${WebhookImportance.IMPORTANT}`, {
+      const response = await fetch(`${webhookUrl}?message=Featured+Articles&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -137,7 +137,7 @@ More content paragraphs would go here. This is just a sample of what the markdow
       
       if (responseData && responseData.message === "Workflow was started") {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const secondResponse = await fetch(`${webhookUrl}?message=Featured+Articles+Results&timestamp=${timestamp + 1000}&userAgent=${encodeURIComponent(userAgent)}&importance=${WebhookImportance.IMPORTANT}`, {
+        const secondResponse = await fetch(`${webhookUrl}?message=Featured+Articles+Results&timestamp=${timestamp + 1000}&userAgent=${encodeURIComponent(userAgent)}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
