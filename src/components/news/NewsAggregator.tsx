@@ -316,7 +316,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
 
   return (
     <div className="h-full p-4 md:p-6 lg:p-8">
-      <div className="mb-8"> {/* Reduced margin from mb-16 to mb-8 */}
+      <div className="mb-4"> {/* Changed from mb-8 to mb-4 */}
         <FeaturedArticles articles={featuredArticles} isLoading={featuredLoading} />
       </div>
       
