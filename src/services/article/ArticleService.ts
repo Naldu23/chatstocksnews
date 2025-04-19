@@ -8,6 +8,9 @@ export class ArticleService {
     try {
       console.log(`Sending request to webhook for ${type} article: ${articleId}`);
       
+      // URL encode the articleId to handle special characters
+      const encodedArticleId = encodeURIComponent(articleId);
+      
       const response = await fetch(this.WEBHOOK_URL, {
         method: 'POST',
         headers: {
@@ -15,7 +18,7 @@ export class ArticleService {
         },
         body: JSON.stringify({
           type,
-          articleId,
+          articleId: encodedArticleId,
           timestamp: new Date().toISOString()
         })
       });
