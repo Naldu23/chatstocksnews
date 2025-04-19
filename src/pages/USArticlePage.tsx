@@ -29,12 +29,13 @@ const USArticlePage = () => {
         
         if (foundArticle) {
           if (!foundArticle.content) {
-            console.log(`Fetching US article content for: ${id}`);
+            console.log(`Fetching US article content for ID: ${id}`);
             
             const response = await ArticleService.fetchArticleContent('us', id || '');
             
             if (response.success && response.data) {
               foundArticle.content = response.data.content || foundArticle.summary;
+              console.log('Updated article with content from webhook:', foundArticle.content);
             } else {
               console.warn('Could not fetch article content:', response.error);
               foundArticle.content = foundArticle.summary;

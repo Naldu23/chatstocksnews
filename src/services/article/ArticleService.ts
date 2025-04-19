@@ -6,6 +6,8 @@ export class ArticleService {
 
   public static async fetchArticleContent(type: 'us' | 'kor', articleId: string): Promise<WebhookResponse> {
     try {
+      console.log(`Sending request to webhook for ${type} article: ${articleId}`);
+      
       const response = await fetch(this.WEBHOOK_URL, {
         method: 'POST',
         headers: {
@@ -23,6 +25,7 @@ export class ArticleService {
       }
 
       const data = await response.json();
+      console.log(`Received webhook response:`, data);
       return { success: true, data };
     } catch (error) {
       console.error('Error fetching article content:', error);
