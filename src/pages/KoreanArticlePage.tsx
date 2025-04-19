@@ -29,31 +29,69 @@ const KoreanArticlePage = () => {
         const decodedId = id ? decodeURIComponent(id) : '';
         console.log(`Looking for Korean article with decoded ID: ${decodedId}`);
         
-        const foundArticle = dummyNewsArticles.find(a => a.id === decodedId) || null;
+        // First try to find the article in dummy data
+        const foundArticle = dummyNewsArticles.find(a => a.id === decodedId);
         
         if (foundArticle) {
-          if (!foundArticle.content) {
+          console.log(`Found article in dummy data:`, foundArticle);
+          
+          // Clone the article to avoid modifying the original data
+          const articleToUpdate = { ...foundArticle };
+          
+          // If we don't have content yet, fetch it from the webhook
+          if (!articleToUpdate.content) {
             console.log(`Fetching Korean article content for ID: ${decodedId}`);
             
+            // Always call the webhook to get fresh content
             const response = await ArticleService.fetchArticleContent('kor', decodedId);
             
             if (response.success && response.data) {
-              foundArticle.content = response.data.content || foundArticle.summary;
-              console.log('Updated article with content from webhook:', foundArticle.content);
+              console.log('Successfully fetched article content:', response.data);
+              articleToUpdate.content = response.data.content || articleToUpdate.summary;
             } else {
               console.warn('Could not fetch article content:', response.error);
-              foundArticle.content = foundArticle.summary;
+              // Use summary as fallback content
+              articleToUpdate.content = articleToUpdate.summary;
+              toast({
+                title: "Content Warning",
+                description: "Using summary as fallback. Could not fetch full article content.",
+                variant: "destructive",
+              });
             }
           }
           
-          setArticle(foundArticle);
+          setArticle(articleToUpdate);
         } else {
           console.warn(`Article not found with ID: ${decodedId}`);
-          toast({
-            title: "Article Not Found",
-            description: "Could not find the requested article.",
-            variant: "destructive",
-          });
+          
+          // Even if we don't find it in dummy data, try to fetch from webhook
+          console.log(`Attempting direct webhook fetch for ID: ${decodedId}`);
+          const response = await ArticleService.fetchArticleContent('kor', decodedId);
+          
+          if (response.success && response.data && response.data.title) {
+            // Create a synthetic article from webhook data
+            const webhookArticle: NewsArticle = {
+              id: decodedId,
+              title: response.data.title || 'Unknown Title',
+              summary: response.data.summary || '',
+              content: response.data.content || '',
+              imageUrl: response.data.imageUrl || '',
+              source: response.data.source || 'External Source',
+              publishedAt: response.data.publishedAt || new Date().toISOString(),
+              readTime: response.data.readTime || 5,
+              grade: 'regular'
+            };
+            
+            console.log('Created article from webhook data:', webhookArticle);
+            setArticle(webhookArticle);
+          } else {
+            console.error('Both dummy data and webhook lookup failed');
+            toast({
+              title: "Article Not Found",
+              description: "Could not find or fetch the requested article.",
+              variant: "destructive",
+            });
+          }
         }
       } catch (error) {
         console.error('Error processing article:', error);

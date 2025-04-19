@@ -23,14 +23,20 @@ export class ArticleService {
       const url = `${this.WEBHOOK_URL}?${queryParams.toString()}`;
       console.log(`Full webhook URL: ${url}`);
       
+      // Send the GET request directly to the webhook endpoint
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-        }
+          'Content-Type': 'application/json',
+        },
+        // Ensure cross-origin requests are handled properly
+        mode: 'cors',
+        cache: 'no-cache',
       });
 
       if (!response.ok) {
+        console.error(`HTTP error! Status: ${response.status}`);
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
