@@ -1,3 +1,4 @@
+
 import { Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -33,6 +34,7 @@ const StockNewsItem = ({ symbol, name, news }: StockNewsItemProps) => {
                     to={`/article/${item.id}`} 
                     className="font-medium hover:text-primary hover:underline"
                     onClick={(e) => {
+                      // Ensure the event propagates correctly
                       e.stopPropagation();
                     }}
                   >

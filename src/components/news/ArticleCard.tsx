@@ -39,7 +39,9 @@ export const ArticleCard = ({ article, onGradeChange, isKorean = false }: Articl
   };
 
   return (
-    <article className="overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm hover:shadow-md transition-all duration-200">
+    <article 
+      className="overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm hover:shadow-md transition-all duration-200"
+    >
       <div className="flex flex-col">
         <div className="flex gap-4 p-3">
           {article.imageUrl && (
@@ -55,7 +57,7 @@ export const ArticleCard = ({ article, onGradeChange, isKorean = false }: Articl
           <div className="flex-1">
             <h2 className="text-base font-semibold leading-tight mb-1">
               <Link 
-                to={`/article/${article.id}`} 
+                to={`/article/${isKorean ? 'kor' : 'us'}/${article.id}`} 
                 className="hover:text-primary hover:underline"
                 onClick={(e) => e.stopPropagation()}
               >

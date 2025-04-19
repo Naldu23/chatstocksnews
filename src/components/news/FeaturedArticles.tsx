@@ -35,7 +35,7 @@ export const FeaturedArticles = ({ articles, isLoading, isKorean = false }: Feat
           {articles[0] && (
             <Card className="h-full overflow-hidden">
               <CardContent className="p-0 h-full">
-                <Link to={`/article/${articles[0].id}`} className="block h-full">
+                <Link to={`/article/${isKorean ? 'kor' : 'us'}/${articles[0].id}`} className="block h-full">
                   <div className="relative h-full">
                     {articles[0].imageUrl ? (
                       <img
@@ -80,7 +80,7 @@ export const FeaturedArticles = ({ articles, isLoading, isKorean = false }: Feat
           {articles.slice(1, 5).map((article, index) => (
             <Card key={article.id} className="h-full overflow-hidden">
               <CardContent className="p-0 h-full">
-                <Link to={`/article/${article.id}`} className="block h-full">
+                <Link to={`/article/${isKorean ? 'kor' : 'us'}/${article.id}`} className="block h-full">
                   <div className="relative h-full">
                     {article.imageUrl ? (
                       <img
@@ -120,7 +120,7 @@ export const FeaturedArticles = ({ articles, isLoading, isKorean = false }: Feat
           {articles.slice(5, 8).map((article) => (
             <Card key={article.id} className="overflow-hidden">
               <CardContent className="p-0">
-                <Link to={`/article/${article.id}`} className="block">
+                <Link to={`/article/${isKorean ? 'kor' : 'us'}/${article.id}`} className="block">
                   <div className="relative aspect-[16/9]">
                     {article.imageUrl ? (
                       <img
