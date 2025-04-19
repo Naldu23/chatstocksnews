@@ -24,6 +24,7 @@ export function NewsAggregator() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
+  const [hasTriedYesterday, setHasTriedYesterday] = useState(false);
   
   useEffect(() => {
     const fetchFeaturedArticles = async () => {
@@ -73,14 +74,31 @@ export function NewsAggregator() {
       const webhookResponse = await N8nService.sendDateFilter(date);
       console.log('Webhook response received:', webhookResponse);
       
-      if (!webhookResponse.success) {
-        console.warn('Failed to fetch articles:', webhookResponse.error);
-        toast({
-          title: "Warning",
-          description: "Couldn't fetch new articles.",
-          variant: "destructive",
-        });
-        setNewsArticles(dummyNewsArticles);
+      if (!webhookResponse.success || 
+          (webhookResponse.error && webhookResponse.error.includes("500")) || 
+          (webhookResponse.data && webhookResponse.data.code === 0)) {
+        
+        console.warn('Failed to fetch articles:', webhookResponse.error || 'No articles available');
+        
+        // Check if we need to try yesterday's data
+        const isToday = date.getDate() === new Date().getDate() && 
+                        date.getMonth() === new Date().getMonth() && 
+                        date.getFullYear() === new Date().getFullYear();
+        
+        if (isToday && !hasTriedYesterday) {
+          console.log('No articles found for today, trying yesterday');
+          setHasTriedYesterday(true);
+          const yesterday = subDays(date, 1);
+          setSelectedDate(yesterday);
+          return; // Exit early as we'll trigger the useEffect to fetch again
+        } else {
+          toast({
+            title: "Warning",
+            description: "Couldn't fetch articles. Using sample data instead.",
+            variant: "destructive",
+          });
+          setNewsArticles(dummyNewsArticles);
+        }
       } else {
         let articlesFound = false;
         
@@ -130,20 +148,16 @@ export function NewsAggregator() {
           console.log('Successfully loaded articles directly from webhook:', validatedArticles);
         }
         
-        if (!articlesFound && date.getTime() === startOfDay(new Date()).getTime()) {
-          console.log('No articles found for today, trying yesterday');
-          const yesterday = subDays(date, 1);
-          setSelectedDate(yesterday);
-          fetchNewsData(yesterday);
-          return;
-        } else if (!articlesFound) {
-          console.warn('No valid articles found in response, using dummy data:', webhookResponse);
+        if (!articlesFound) {
+          console.warn('No valid articles found in response, using dummy data');
           setNewsArticles(dummyNewsArticles);
           toast({
             title: "Notice",
-            description: "Could not retrieve articles from the server. Using sample data instead.",
+            description: "Could not retrieve articles. Using sample data instead.",
             variant: "default",
           });
+        } else {
+          setHasTriedYesterday(false);
         }
       }
     } catch (error) {
@@ -160,7 +174,7 @@ export function NewsAggregator() {
         setIsLoading(false);
       }, 500);
     }
-  }, [toast]);
+  }, [toast, hasTriedYesterday]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -174,11 +188,13 @@ export function NewsAggregator() {
     if (date) {
       const normalizedDate = startOfDay(date);
       setSelectedDate(normalizedDate);
+      setHasTriedYesterday(false);
     }
   }, []);
 
   const handleRefresh = useCallback(() => {
     if (selectedDate) {
+      setHasTriedYesterday(false);
       fetchNewsData(selectedDate);
     }
   }, [selectedDate, fetchNewsData]);
