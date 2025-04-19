@@ -13,7 +13,7 @@ const KoreanNewsPage = () => {
   };
   
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex h-screen flex-col">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
       <div className="flex-1 overflow-auto">
