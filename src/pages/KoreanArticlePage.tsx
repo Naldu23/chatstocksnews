@@ -25,16 +25,21 @@ const KoreanArticlePage = () => {
       setIsLoading(true);
       
       try {
-        const foundArticle = dummyNewsArticles.find(a => a.id === id) || null;
+        // Decode the ID from the URL if it's encoded
+        const decodedId = id ? decodeURIComponent(id) : '';
+        console.log(`Looking for Korean article with decoded ID: ${decodedId}`);
+        
+        const foundArticle = dummyNewsArticles.find(a => a.id === decodedId) || null;
         
         if (foundArticle) {
           if (!foundArticle.content) {
-            console.log(`Fetching Korean article content for: ${id}`);
+            console.log(`Fetching Korean article content for ID: ${decodedId}`);
             
-            const response = await ArticleService.fetchArticleContent('kor', id || '');
+            const response = await ArticleService.fetchArticleContent('kor', decodedId);
             
             if (response.success && response.data) {
               foundArticle.content = response.data.content || foundArticle.summary;
+              console.log('Updated article with content from webhook:', foundArticle.content);
             } else {
               console.warn('Could not fetch article content:', response.error);
               foundArticle.content = foundArticle.summary;
@@ -43,6 +48,7 @@ const KoreanArticlePage = () => {
           
           setArticle(foundArticle);
         } else {
+          console.warn(`Article not found with ID: ${decodedId}`);
           toast({
             title: "Article Not Found",
             description: "Could not find the requested article.",
