@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Moon, Sun, Menu, X, Crown, Globe, Slack, ExternalLink, Flag } from 'lucide-react';
+import { Moon, Sun, Menu, X, Crown, Globe, Slack, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -85,7 +84,7 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="px-4 py-2 text-sm font-medium rounded-full transition-colors flex items-center gap-2 hover:bg-secondary">
-                News <Flag className="h-4 w-4" />
+                News
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -94,7 +93,6 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
                   to="/news"
                   className="w-full flex items-center gap-2"
                 >
-                  <Flag className="h-4 w-4" />
                   <span>US News</span>
                 </NavLink>
               </DropdownMenuItem>
@@ -103,7 +101,6 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
                   to="/korean-news"
                   className="w-full flex items-center gap-2"
                 >
-                  <Flag className="h-4 w-4" />
                   <span>Korean News</span>
                 </NavLink>
               </DropdownMenuItem>
@@ -184,7 +181,7 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="px-3 py-1.5 text-sm font-medium rounded-full transition-colors flex items-center gap-2 hover:bg-secondary">
-              News <Flag className="h-4 w-4" />
+              News
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -193,7 +190,6 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
                 to="/news"
                 className="w-full flex items-center gap-2"
               >
-                <Flag className="h-4 w-4" />
                 <span>US News</span>
               </NavLink>
             </DropdownMenuItem>
@@ -202,7 +198,6 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
                 to="/korean-news"
                 className="w-full flex items-center gap-2"
               >
-                <Flag className="h-4 w-4" />
                 <span>Korean News</span>
               </NavLink>
             </DropdownMenuItem>
