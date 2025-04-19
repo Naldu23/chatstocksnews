@@ -1,4 +1,3 @@
-
 import { Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -14,7 +13,7 @@ interface StockNewsItemProps {
   news: NewsItem[];
 }
 
-const StockNewsItem = ({ symbol, name, news }: StockNewsItemProps) => {
+const StockNewsItem = ({ symbol, name, news, isKorean = false }: StockNewsItemProps & { isKorean?: boolean }) => {
   return (
     <div className="space-y-2">
       <h3 className="text-lg font-semibold flex items-center">
@@ -31,10 +30,9 @@ const StockNewsItem = ({ symbol, name, news }: StockNewsItemProps) => {
               <div className="flex-1">
                 {item.id ? (
                   <Link 
-                    to={`/article/${item.id}`} 
+                    to={`/article/${isKorean ? 'kor' : 'us'}/${item.id}`}
                     className="font-medium hover:text-primary hover:underline"
                     onClick={(e) => {
-                      // Ensure the event propagates correctly
                       e.stopPropagation();
                     }}
                   >
