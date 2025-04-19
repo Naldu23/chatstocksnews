@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';  // Add support for tables, strikethrough, etc.
 
 interface ArticleContentProps {
   article: NewsArticle;
@@ -87,12 +88,15 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
       <div className="prose prose-gray dark:prose-invert max-w-none">
         {article.content ? (
           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}  // Add GitHub Flavored Markdown support
             components={{
               h1: ({ node, ...props }) => <h1 className="text-3xl font-bold" {...props} />,
               h2: ({ node, ...props }) => <h2 className="text-2xl font-bold" {...props} />,
               h3: ({ node, ...props }) => <h3 className="text-xl font-bold" {...props} />,
-              p: ({ node, ...props }) => <p className="text-base" {...props} />,
-              a: ({ node, ...props }) => <a className="text-primary hover:text-primary/80" {...props} />
+              p: ({ node, ...props }) => <p className="text-base leading-relaxed" {...props} />,
+              a: ({ node, ...props }) => <a className="text-primary hover:text-primary/80 underline" {...props} />,
+              ul: ({ node, ...props }) => <ul className="list-disc list-outside ml-6" {...props} />,
+              ol: ({ node, ...props }) => <ol className="list-decimal list-outside ml-6" {...props} />
             }}
           >
             {article.content}
