@@ -1,4 +1,3 @@
-
 export interface WebhookResponse {
   success: boolean;
   data?: any;
@@ -14,13 +13,12 @@ export abstract class BaseWebhookService {
     method: 'GET' | 'POST' = 'GET'
   ): Promise<WebhookResponse> {
     try {
-      console.log(`Sending webhook request to ${url}:`, payload);
+      console.log(`Sending webhook request to ${url} with method ${method}:`, payload);
       
       let finalUrl = url;
       let options: RequestInit = {
         method,
         headers: {
-          'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         signal: AbortSignal.timeout(15000), // 15 second timeout
@@ -41,7 +39,12 @@ export abstract class BaseWebhookService {
         queryParams.append('_t', Date.now().toString());
         
         finalUrl = `${url}?${queryParams.toString()}`;
+        console.log(`Final GET URL: ${finalUrl}`);
       } else if (method === 'POST') {
+        options.headers = {
+          ...options.headers,
+          'Content-Type': 'application/json',
+        };
         options.body = JSON.stringify(payload);
       }
       
@@ -52,12 +55,15 @@ export abstract class BaseWebhookService {
       while (attempts < maxAttempts) {
         try {
           attempts++;
-          console.log(`Attempt ${attempts} to fetch from ${finalUrl}`);
+          console.log(`Attempt ${attempts} to fetch from ${finalUrl} with method ${method}`);
           const response = await fetch(finalUrl, options);
           
           // Check for successful response
           if (!response.ok) {
-            throw new Error(`Server responded with status: ${response.status}`);
+            console.error(`Server responded with status: ${response.status}`);
+            const responseText = await response.text();
+            console.error(`Response body: ${responseText}`);
+            throw new Error(`Server responded with status: ${response.status} - ${responseText}`);
           }
           
           // Try to parse the response as JSON
@@ -72,6 +78,7 @@ export abstract class BaseWebhookService {
               data = JSON.parse(data);
             } catch (e) {
               // Keep as text if not valid JSON
+              console.log('Response is not JSON, keeping as text');
             }
           }
           
