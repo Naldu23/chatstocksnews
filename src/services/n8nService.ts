@@ -3,6 +3,24 @@ import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
 
 export class N8nService {
+  // Helper function to convert importance string to number
+  private static convertImportanceToNumber(importance: string | undefined): number {
+    if (!importance) return 4; // default to lowest importance
+    
+    switch (importance.toLowerCase()) {
+      case 'critical':
+        return 1;
+      case 'important':
+        return 2;
+      case 'useful':
+        return 3;
+      case 'interesting':
+        return 4;
+      default:
+        return 4;
+    }
+  }
+
   // Date filter methods
   public static async sendDateFilter(date: Date | undefined) {
     return dateFilterService.sendDateFilter(date);
@@ -70,13 +88,11 @@ More content paragraphs would go here. This is just a sample of what the markdow
       const timestamp = new Date().getTime();
       const userAgent = navigator.userAgent;
       
-      // Use the new webhook URL
       const webhookUrl = 'https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544';
       
-      // Format the date if provided
       let dateParam = '';
       if (date) {
-        const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        const formattedDate = date.toISOString().split('T')[0];
         dateParam = `&date=${formattedDate}`;
         console.log(`Fetching English news with date: ${formattedDate}`);
       }
@@ -93,6 +109,15 @@ More content paragraphs would go here. This is just a sample of what the markdow
       }
 
       const data = await response.json();
+      
+      // Convert importance strings to numbers
+      if (data.articles && Array.isArray(data.articles)) {
+        data.articles = data.articles.map(article => ({
+          ...article,
+          importance: N8nService.convertImportanceToNumber(article.grade)
+        }));
+      }
+      
       return { success: true, data };
     } catch (error) {
       console.error('Error fetching English news:', error);
@@ -110,18 +135,13 @@ More content paragraphs would go here. This is just a sample of what the markdow
       const timestamp = new Date().getTime();
       const userAgent = navigator.userAgent;
       
-      // Use the correct webhook URL for Korean news
       const webhookUrl = 'https://n8n.bioking.kr/webhook/9135400d-3e9e-4590-9530-bc0386e56c4b';
       
-      // Format the date if provided - ensure we handle the date correctly without timezone issues
       let dateParam = '';
       if (date) {
-        // Create a new date with only year, month, day to avoid timezone issues
-        // Important: For Korean news, we need to add 1 day to get the correct date
         const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        // Add one day to get the correct date for Korean news
         normalizedDate.setDate(normalizedDate.getDate() + 1);
-        const formattedDate = normalizedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+        const formattedDate = normalizedDate.toISOString().split('T')[0];
         dateParam = `&date=${formattedDate}`;
         console.log(`Fetching Korean news with selected date: ${date.toLocaleDateString()}, adjusted date: ${normalizedDate.toLocaleDateString()}, formatted: ${formattedDate}`);
       }
@@ -138,6 +158,15 @@ More content paragraphs would go here. This is just a sample of what the markdow
       }
 
       const data = await response.json();
+      
+      // Convert importance strings to numbers
+      if (data.articles && Array.isArray(data.articles)) {
+        data.articles = data.articles.map(article => ({
+          ...article,
+          importance: N8nService.convertImportanceToNumber(article.grade)
+        }));
+      }
+      
       return { success: true, data };
     } catch (error) {
       console.error('Error fetching Korean news:', error);
