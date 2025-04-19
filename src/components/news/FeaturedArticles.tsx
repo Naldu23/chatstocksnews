@@ -12,6 +12,8 @@ interface FeaturedArticlesProps {
 }
 
 export const FeaturedArticles = ({ articles, isLoading, isKorean = false }: FeaturedArticlesProps) => {
+  console.log("FeaturedArticles - isKorean:", isKorean);
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, 'MMM d, yyyy');

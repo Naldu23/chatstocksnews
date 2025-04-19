@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO, isToday } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -200,7 +199,6 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
   const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
     if (date) {
-      // Don't add a day here, just normalize the date
       const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       console.log("NewsAggregator: Using normalized date:", normalizedDate);
       setSelectedDate(normalizedDate);
@@ -317,12 +315,16 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
 
   return (
     <div className="h-full p-4 md:p-6 lg:p-8">
-      <div className="mb-4"> {/* Changed from mb-8 to mb-4 */}
-        <FeaturedArticles articles={featuredArticles} isLoading={featuredLoading} />
+      <div className="mb-4">
+        <FeaturedArticles 
+          articles={featuredArticles} 
+          isLoading={featuredLoading} 
+          isKorean={isKorean}
+        />
       </div>
       
       <div className="flex flex-col md:flex-row gap-6 lg:gap-8">
-        <div className="w-full md:w-64 space-y-6 flex-shrink-0 pb-24"> {/* Added bottom padding here */}
+        <div className="w-full md:w-64 space-y-6 flex-shrink-0 pb-24">
           <div className="mb-6">
             <h1 className="text-2xl font-bold mb-4">
               {isKorean ? 'Korean News Feed' : 'News Feed'}
