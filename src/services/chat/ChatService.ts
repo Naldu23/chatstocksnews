@@ -1,8 +1,7 @@
-
 import { BaseWebhookService } from '../base/BaseWebhookService';
 
 export class ChatService extends BaseWebhookService {
-  private static readonly CHAT_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook/661d3919-a57f-4c5a-8491-359120f8165b';
+  private static readonly CHAT_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/661d3919-a57f-4c5a-8491-359120f8165b';
   private static readonly RESEARCH_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/research';
   private static readonly REPORT_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/report';
   private static instance: ChatService;
