@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Header from '@/components/layout/Header';
 import NewsAggregator from '@/components/news/NewsAggregator';
+import { N8nService } from '@/services/n8nService';
 
 const KoreanNewsPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
