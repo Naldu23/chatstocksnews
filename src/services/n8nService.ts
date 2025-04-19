@@ -83,11 +83,14 @@ More content paragraphs would go here. This is just a sample of what the markdow
       // Use the correct webhook URL for Korean news
       const webhookUrl = 'https://n8n.bioking.kr/webhook/9135400d-3e9e-4590-9530-bc0386e56c4b';
       
-      // Format the date if provided
+      // Format the date if provided - ensure we handle the date correctly without timezone issues
       let dateParam = '';
       if (date) {
-        const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        // Create a new date with only year, month, day to avoid timezone issues
+        const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const formattedDate = normalizedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
         dateParam = `&date=${formattedDate}`;
+        console.log(`Fetching Korean news with original date: ${date.toLocaleDateString()}, normalized: ${normalizedDate.toLocaleDateString()}, formatted: ${formattedDate}`);
       }
       
       const response = await fetch(`${webhookUrl}?timestamp=${timestamp}${dateParam}&userAgent=${encodeURIComponent(userAgent)}`, {

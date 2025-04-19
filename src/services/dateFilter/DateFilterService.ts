@@ -24,9 +24,11 @@ export class DateFilterService extends BaseWebhookService {
     let formattedDate = null;
     
     if (date) {
+      // Create a new date object with only year, month, day to avoid timezone issues
+      const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       // Format the date as YYYY-MM-DD to avoid time zone issues
-      formattedDate = format(date, 'yyyy-MM-dd');
-      console.log(`Original date: ${date.toISOString()}, Formatted date: ${formattedDate}`);
+      formattedDate = format(normalizedDate, 'yyyy-MM-dd');
+      console.log(`Original date: ${date.toLocaleDateString()}, Normalized date: ${normalizedDate.toLocaleDateString()}, Formatted date: ${formattedDate}`);
     }
     
     return this.sendWebhookRequest(

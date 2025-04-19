@@ -37,8 +37,10 @@ export const DateFilter = ({
   const handleDateChange = (date: Date | undefined) => {
     // Only allow selecting a date, prevent deselection
     if (date) {
-      console.log("DateFilter: Date selected:", date);
-      onDateChange(date);
+      // Preserve the exact date without time zone adjustments
+      const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      console.log("DateFilter: Date selected:", normalizedDate);
+      onDateChange(normalizedDate);
     }
   };
 

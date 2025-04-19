@@ -199,7 +199,8 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
   const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
     if (date) {
-      const normalizedDate = startOfDay(date);
+      const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      console.log("NewsAggregator: Using normalized date:", normalizedDate);
       setSelectedDate(normalizedDate);
     }
   }, []);
