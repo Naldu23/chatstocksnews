@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { NewsArticle } from './types';
 import { Card, CardContent } from "@/components/ui/card";
