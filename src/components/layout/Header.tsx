@@ -84,14 +84,7 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className={({ isActive }: { isActive: boolean }) => 
-                cn(
-                  "px-4 py-2 text-sm font-medium rounded-full transition-colors flex items-center gap-2",
-                  isActive 
-                    ? "bg-primary text-primary-foreground" 
-                    : "hover:bg-secondary"
-                )
-              }>
+              <button className="px-4 py-2 text-sm font-medium rounded-full transition-colors flex items-center gap-2 hover:bg-secondary">
                 News <Flag className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
@@ -190,14 +183,7 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className={({ isActive }: { isActive: boolean }) => 
-              cn(
-                "px-3 py-1.5 text-sm font-medium rounded-full transition-colors flex items-center gap-2",
-                isActive 
-                  ? "bg-primary text-primary-foreground" 
-                  : "hover:bg-secondary"
-              )
-            }>
+            <button className="px-3 py-1.5 text-sm font-medium rounded-full transition-colors flex items-center gap-2 hover:bg-secondary">
               News <Flag className="h-4 w-4" />
             </button>
           </DropdownMenuTrigger>
