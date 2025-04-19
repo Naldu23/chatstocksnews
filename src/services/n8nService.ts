@@ -1,3 +1,4 @@
+
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -91,16 +92,32 @@ More content paragraphs would go here. This is just a sample of what the markdow
         method: 'GET',
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json', // Added Content-Type
+          'X-Debug-Info': 'Lovable News Fetch' // Added debug header
         },
+        mode: 'cors', // Added CORS mode
+        cache: 'no-cache' // Prevent caching
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`HTTP error! Status: ${response.status}, StatusText: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const contentType = response.headers.get('content-type');
+      console.log('Content-Type:', contentType);
+
+      let data;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.log('Non-JSON response:', text);
+        throw new Error(`Expected JSON, got ${contentType}`);
+      }
       
-      // Log the response for debugging
       console.log('News fetch response:', data);
 
       // Validate the response structure
@@ -224,3 +241,4 @@ More content paragraphs would go here. This is just a sample of what the markdow
 }
 
 export default N8nService;
+
