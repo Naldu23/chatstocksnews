@@ -1,6 +1,7 @@
 
 import { BaseWebhookService } from '../base/BaseWebhookService';
 import { format } from 'date-fns';
+import { WebhookImportance } from '../chat/ChatService';
 
 export class DateFilterService extends BaseWebhookService {
   private static readonly DATE_WEBHOOK_URL = 'https://n8n.bioking.kr/webhook/7404c6fa-5c6f-49d6-9746-c25c5fc53411';
@@ -35,7 +36,8 @@ export class DateFilterService extends BaseWebhookService {
       DateFilterService.DATE_WEBHOOK_URL, 
       { 
         date: formattedDate,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        importance: WebhookImportance.IMPORTANT // Setting date filter as IMPORTANT (2)
       }
     );
   }
