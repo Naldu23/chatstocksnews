@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';  // Add support for tables, strikethrough, etc.
+import rehypeRaw from 'rehype-raw';  // Add support for rendering HTML inside markdown
 
 interface ArticleContentProps {
   article: NewsArticle;
@@ -24,6 +25,14 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
   if (!article) {
     return <div>Article not found</div>;
   }
+
+  // Process content to handle both </br> tags and regular markdown
+  const processContent = (content?: string) => {
+    if (!content) return content;
+    
+    // Replace HTML break tags with double newlines for markdown
+    return content.replace(/<\/br>/g, '\n\n').replace(/<br>/g, '\n\n').replace(/<br\/>/g, '\n\n');
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
@@ -89,17 +98,20 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
         {article.content ? (
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}  // Add GitHub Flavored Markdown support
+            rehypePlugins={[rehypeRaw]}  // Add support for HTML in markdown
             components={{
-              h1: ({ node, ...props }) => <h1 className="text-3xl font-bold" {...props} />,
-              h2: ({ node, ...props }) => <h2 className="text-2xl font-bold" {...props} />,
-              h3: ({ node, ...props }) => <h3 className="text-xl font-bold" {...props} />,
-              p: ({ node, ...props }) => <p className="text-base leading-relaxed" {...props} />,
+              h1: ({ node, ...props }) => <h1 className="text-3xl font-bold mt-6 mb-4" {...props} />,
+              h2: ({ node, ...props }) => <h2 className="text-2xl font-bold mt-5 mb-3" {...props} />,
+              h3: ({ node, ...props }) => <h3 className="text-xl font-bold mt-4 mb-2" {...props} />,
+              p: ({ node, ...props }) => <p className="text-base leading-relaxed my-3" {...props} />,
               a: ({ node, ...props }) => <a className="text-primary hover:text-primary/80 underline" {...props} />,
-              ul: ({ node, ...props }) => <ul className="list-disc list-outside ml-6" {...props} />,
-              ol: ({ node, ...props }) => <ol className="list-decimal list-outside ml-6" {...props} />
+              ul: ({ node, ...props }) => <ul className="list-disc list-outside ml-6 my-4" {...props} />,
+              ol: ({ node, ...props }) => <ol className="list-decimal list-outside ml-6 my-4" {...props} />,
+              li: ({ node, ...props }) => <li className="my-1" {...props} />,
+              strong: ({ node, ...props }) => <strong className="font-bold" {...props} />
             }}
           >
-            {article.content}
+            {processContent(article.content)}
           </ReactMarkdown>
         ) : (
           <p className="text-lg">{article.summary}</p>
