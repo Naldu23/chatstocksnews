@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO, isToday } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -17,7 +18,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 interface NewsAggregatorProps {
   isKorean: boolean;
   fetchNews: (date: Date | undefined) => Promise<any>;
-  fetchFeatured: () => Promise<any>;
+  fetchFeatured: (date: Date | undefined) => Promise<any>;
 }
 
 export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggregatorProps) {
@@ -35,9 +36,9 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
   const fetchFeaturedArticles = useCallback(async () => {
     setFeaturedLoading(true);
     try {
-      console.log('Fetching featured articles');
+      console.log('Fetching featured articles with date:', selectedDate?.toLocaleDateString());
       
-      const response = await fetchFeatured();
+      const response = await fetchFeatured(selectedDate);
       
       if (response.success && response.data) {
         let articles = [];
@@ -89,7 +90,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
     } finally {
       setFeaturedLoading(false);
     }
-  }, [fetchFeatured]);
+  }, [fetchFeatured, selectedDate]);
 
   useEffect(() => {
     fetchFeaturedArticles();

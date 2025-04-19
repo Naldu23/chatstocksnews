@@ -12,6 +12,15 @@ const NewsPage = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
   
+  // Create wrapper functions that'll capture the selected date for featured articles
+  const fetchNews = (date: Date | undefined) => {
+    return N8nService.fetchEnglishNews(date);
+  };
+  
+  const fetchFeatured = (date: Date | undefined) => {
+    return N8nService.fetchEnglishFeaturedArticles(date);
+  };
+  
   return (
     <div className="flex h-screen flex-col">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
@@ -21,8 +30,8 @@ const NewsPage = () => {
           <NewsAggregator 
             key={refreshTrigger}
             isKorean={false}
-            fetchNews={N8nService.fetchEnglishNews}
-            fetchFeatured={N8nService.fetchEnglishFeaturedArticles}
+            fetchNews={fetchNews}
+            fetchFeatured={fetchFeatured}
           />
         </main>
       </div>

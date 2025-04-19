@@ -1,3 +1,4 @@
+
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -61,8 +62,8 @@ More content paragraphs would go here. This is just a sample of what the markdow
   }
 
   // English News Methods
-  public static async fetchEnglishFeaturedArticles() {
-    return N8nService.fetchFeaturedArticles('https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544');
+  public static async fetchEnglishFeaturedArticles(date?: Date) {
+    return N8nService.fetchFeaturedArticles('https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544', date);
   }
 
   public static async fetchEnglishNews(date: Date | undefined) {
@@ -70,8 +71,8 @@ More content paragraphs would go here. This is just a sample of what the markdow
   }
 
   // Korean News Methods
-  public static async fetchKoreanFeaturedArticles() {
-    return N8nService.fetchFeaturedArticles('https://n8n.bioking.kr/webhook/10e40f57-a02e-4aff-b8fa-1a0efae68cf9');
+  public static async fetchKoreanFeaturedArticles(date?: Date) {
+    return N8nService.fetchFeaturedArticles('https://n8n.bioking.kr/webhook/10e40f57-a02e-4aff-b8fa-1a0efae68cf9', date);
   }
 
   public static async fetchKoreanNews(date: Date | undefined) {
@@ -115,12 +116,21 @@ More content paragraphs would go here. This is just a sample of what the markdow
   }
 
   // Helper method for featured articles
-  private static async fetchFeaturedArticles(webhookUrl: string) {
+  private static async fetchFeaturedArticles(webhookUrl: string, date?: Date) {
     try {
       const timestamp = new Date().getTime();
       const userAgent = navigator.userAgent;
       
-      const response = await fetch(`${webhookUrl}?message=Featured+Articles&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
+      // Format date parameter if provided
+      let dateParam = '';
+      if (date) {
+        const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const formattedDate = normalizedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+        dateParam = `&date=${formattedDate}`;
+        console.log(`Fetching featured articles with date: ${formattedDate}`);
+      }
+      
+      const response = await fetch(`${webhookUrl}?${dateParam ? 'date=' + dateParam.substring(1) + '&' : ''}timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -136,7 +146,7 @@ More content paragraphs would go here. This is just a sample of what the markdow
       
       if (responseData && responseData.message === "Workflow was started") {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const secondResponse = await fetch(`${webhookUrl}?message=Featured+Articles+Results&timestamp=${timestamp + 1000}&userAgent=${encodeURIComponent(userAgent)}`, {
+        const secondResponse = await fetch(`${webhookUrl}?${dateParam ? 'date=' + dateParam.substring(1) + '&' : ''}timestamp=${timestamp + 1000}&userAgent=${encodeURIComponent(userAgent)}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
