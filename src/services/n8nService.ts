@@ -79,9 +79,30 @@ More content paragraphs would go here. This is just a sample of what the markdow
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log('Featured articles response:', data);
-      return { success: true, data };
+      const responseData = await response.json();
+      console.log('Featured articles response:', responseData);
+      
+      // Handle the case where the response only contains a workflow started message
+      if (responseData && responseData.message === "Workflow was started") {
+        // Make a second request after a short delay to get the actual data
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const secondResponse = await fetch(`https://n8n.bioking.kr/webhook/d2c35989-6df5-4f99-8134-230e423f90f3?message=Featured+Articles+Results&timestamp=${timestamp + 1000}&userAgent=${encodeURIComponent(userAgent)}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+        
+        if (!secondResponse.ok) {
+          throw new Error(`HTTP error on second request! Status: ${secondResponse.status}`);
+        }
+        
+        const secondData = await secondResponse.json();
+        console.log('Second featured articles response:', secondData);
+        return { success: true, data: secondData };
+      }
+      
+      return { success: true, data: responseData };
     } catch (error) {
       console.error('Error fetching featured articles:', error);
       return { success: false, error: String(error) };
@@ -90,4 +111,3 @@ More content paragraphs would go here. This is just a sample of what the markdow
 }
 
 export default N8nService;
-

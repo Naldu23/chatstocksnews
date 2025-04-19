@@ -35,25 +35,52 @@ export function NewsAggregator() {
       const response = await N8nService.fetchFeaturedArticles();
       
       if (response.success && response.data) {
-        let articles = Array.isArray(response.data) ? response.data : [];
+        let articles = [];
         
-        // Sort articles by order if it exists
-        articles = articles.sort((a, b) => (a.order || 0) - (b.order || 0));
+        if (Array.isArray(response.data)) {
+          articles = response.data;
+        } 
+        else if (response.data.articles && Array.isArray(response.data.articles)) {
+          articles = response.data.articles;
+        }
+        else if (response.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
+          const keys = Object.keys(response.data);
+          if (keys.length > 0 && !isNaN(Number(keys[0]))) {
+            articles = Object.values(response.data);
+          }
+        }
+        
+        console.log('Processed featured articles:', articles);
         
         if (articles.length > 0) {
-          setFeaturedArticles(articles);
-          console.log('Featured articles loaded:', articles.length);
+          const validatedArticles = articles.map((article: any) => ({
+            id: article.id || `featured-${Math.random().toString(36).substring(2, 9)}`,
+            title: article.title || 'Untitled Article',
+            summary: article.summary || '',
+            source: article.source || 'Featured Source',
+            publishedAt: article.publishedAt || new Date().toISOString(),
+            url: article.url || '#',
+            imageUrl: article.imageUrl || undefined,
+            readTime: article.readTime || 5,
+            content: article.content || undefined,
+            grade: article.grade || 'important'
+          }));
+          
+          const sortedArticles = validatedArticles.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          
+          setFeaturedArticles(sortedArticles);
+          console.log('Featured articles loaded:', sortedArticles.length);
         } else {
           console.log('No featured articles returned, using dummy data');
-          setFeaturedArticles(dummyNewsArticles);
+          setFeaturedArticles(dummyNewsArticles.slice(0, 5));
         }
       } else {
         console.warn('Failed to fetch featured articles:', response.error);
-        setFeaturedArticles(dummyNewsArticles);
+        setFeaturedArticles(dummyNewsArticles.slice(0, 5));
       }
     } catch (error) {
       console.error('Error loading featured articles:', error);
-      setFeaturedArticles(dummyNewsArticles);
+      setFeaturedArticles(dummyNewsArticles.slice(0, 5));
     } finally {
       setFeaturedLoading(false);
     }
@@ -80,17 +107,12 @@ export function NewsAggregator() {
         
         console.warn('Failed to fetch articles:', webhookResponse.error || 'No articles available');
         
-        // Check if we need to try yesterday's data
-        const isToday = date.getDate() === new Date().getDate() && 
-                        date.getMonth() === new Date().getMonth() && 
-                        date.getFullYear() === new Date().getFullYear();
-        
         if (isToday && !hasTriedYesterday) {
           console.log('No articles found for today, trying yesterday');
           setHasTriedYesterday(true);
           const yesterday = subDays(date, 1);
           setSelectedDate(yesterday);
-          return; // Exit early as we'll trigger the useEffect to fetch again
+          return;
         } else {
           toast({
             title: "Warning",
