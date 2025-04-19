@@ -1,14 +1,15 @@
 
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Moon, Sun, Menu, X, Crown, Globe, Slack, ExternalLink } from 'lucide-react';
+import { Moon, Sun, Menu, X, Crown, Globe, Slack, ExternalLink, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 
 interface HeaderProps {
@@ -80,19 +81,41 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
           >
             Stocks
           </NavLink>
-          <NavLink 
-            to="/news" 
-            className={({ isActive }) => 
-              cn(
-                "px-4 py-2 text-sm font-medium rounded-full transition-colors",
-                isActive 
-                  ? "bg-primary text-primary-foreground" 
-                  : "hover:bg-secondary"
-              )
-            }
-          >
-            News
-          </NavLink>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={({ isActive }: { isActive: boolean }) => 
+                cn(
+                  "px-4 py-2 text-sm font-medium rounded-full transition-colors flex items-center gap-2",
+                  isActive 
+                    ? "bg-primary text-primary-foreground" 
+                    : "hover:bg-secondary"
+                )
+              }>
+                News <Flag className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <NavLink 
+                  to="/news"
+                  className="w-full flex items-center gap-2"
+                >
+                  <Flag className="h-4 w-4" />
+                  <span>US News</span>
+                </NavLink>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <NavLink 
+                  to="/korean-news"
+                  className="w-full flex items-center gap-2"
+                >
+                  <Flag className="h-4 w-4" />
+                  <span>Korean News</span>
+                </NavLink>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
         
         <div className="flex items-center gap-2">
@@ -164,19 +187,41 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
         >
           Stocks
         </NavLink>
-        <NavLink 
-          to="/news" 
-          className={({ isActive }) => 
-            cn(
-              "px-3 py-1.5 text-sm font-medium rounded-full transition-colors",
-              isActive 
-                ? "bg-primary text-primary-foreground" 
-                : "hover:bg-secondary"
-            )
-          }
-        >
-          News
-        </NavLink>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className={({ isActive }: { isActive: boolean }) => 
+              cn(
+                "px-3 py-1.5 text-sm font-medium rounded-full transition-colors flex items-center gap-2",
+                isActive 
+                  ? "bg-primary text-primary-foreground" 
+                  : "hover:bg-secondary"
+              )
+            }>
+              News <Flag className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <NavLink 
+                to="/news"
+                className="w-full flex items-center gap-2"
+              >
+                <Flag className="h-4 w-4" />
+                <span>US News</span>
+              </NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <NavLink 
+                to="/korean-news"
+                className="w-full flex items-center gap-2"
+              >
+                <Flag className="h-4 w-4" />
+                <span>Korean News</span>
+              </NavLink>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </nav>
     </header>
   );
