@@ -106,11 +106,11 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
       
       const webhookResponse = await fetchNews(date);
       
-      if (!webhookResponse.success || 
-          (webhookResponse.error && webhookResponse.error.includes("500")) || 
-          (webhookResponse.data && webhookResponse.data.code === 0)) {
+      if (!webhookResponse.success || !webhookResponse.data || 
+          (Array.isArray(webhookResponse.data) && webhookResponse.data.length === 0) ||
+          (webhookResponse.data.articles && webhookResponse.data.articles.length === 0)) {
         
-        console.warn('Failed to fetch articles:', webhookResponse.error || 'No articles available');
+        console.warn('No articles found for the selected date');
         
         if (isToday(date) && !hasTriedYesterday) {
           console.log('No articles found for today, trying yesterday');
@@ -119,24 +119,24 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
           setSelectedDate(yesterday);
           return;
         } else {
+          setNewsArticles([]);
           toast({
-            title: "Warning",
-            description: "Couldn't fetch articles. Using sample data instead.",
-            variant: "destructive",
+            title: "No Articles",
+            description: `No articles found for the selected date (${date.toLocaleDateString()})`,
+            variant: "default",
           });
-          setNewsArticles(dummyNewsArticles);
         }
       } else {
         let articlesFound = false;
+        let validatedArticles: NewsArticle[] = [];
         
         if (webhookResponse.data && 
             Array.isArray(webhookResponse.data) && 
-            webhookResponse.data.length > 0 && 
-            webhookResponse.data[0].articles && 
+            webhookResponse.data[0]?.articles && 
             Array.isArray(webhookResponse.data[0].articles) && 
             webhookResponse.data[0].articles.length > 0) {
           
-          const validatedArticles = webhookResponse.data[0].articles.map((article: any) => ({
+          validatedArticles = webhookResponse.data[0].articles.map((article: any) => ({
             id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
             title: article.title || 'Untitled Article',
             summary: article.summary || '',
@@ -149,15 +149,13 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
             grade: article.grade
           }));
           
-          setNewsArticles(validatedArticles);
           articlesFound = true;
-          console.log('Successfully loaded articles from webhook:', validatedArticles);
         } else if (webhookResponse.data && 
                   webhookResponse.data.articles && 
                   Array.isArray(webhookResponse.data.articles) && 
                   webhookResponse.data.articles.length > 0) {
           
-          const validatedArticles = webhookResponse.data.articles.map((article: any) => ({
+          validatedArticles = webhookResponse.data.articles.map((article: any) => ({
             id: article.id || `news-${Math.random().toString(36).substring(2, 9)}`,
             title: article.title || 'Untitled Article',
             summary: article.summary || '',
@@ -170,30 +168,29 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
             grade: article.grade
           }));
           
-          setNewsArticles(validatedArticles);
           articlesFound = true;
-          console.log('Successfully loaded articles directly from webhook:', validatedArticles);
         }
         
         if (!articlesFound) {
-          console.warn('No valid articles found in response, using dummy data');
-          setNewsArticles(dummyNewsArticles);
+          console.warn('No valid articles found in response');
+          setNewsArticles([]);
           toast({
-            title: "Notice",
-            description: "Could not retrieve articles. Using sample data instead.",
+            title: "No Articles",
+            description: `No articles found for the selected date (${date.toLocaleDateString()})`,
             variant: "default",
           });
         } else {
+          setNewsArticles(validatedArticles);
           setHasTriedYesterday(false);
         }
       }
     } catch (error) {
       console.error('Error loading news data:', error);
       setIsErrorState(true);
-      setNewsArticles(dummyNewsArticles);
+      setNewsArticles([]);
       toast({
         title: "Error",
-        description: "Failed to load news data. Using sample data instead.",
+        description: "Failed to load news data.",
         variant: "destructive",
       });
     } finally {
