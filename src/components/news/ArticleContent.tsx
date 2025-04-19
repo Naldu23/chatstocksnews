@@ -1,7 +1,6 @@
-
 import { BookOpen, Calendar, Clock, ArrowLeft, Bookmark, Share2 } from 'lucide-react';
 import { NewsArticle } from './types';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from 'react-markdown';
@@ -13,6 +12,9 @@ interface ArticleContentProps {
 }
 
 const ArticleContent = ({ article }: ArticleContentProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -20,6 +22,20 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
       month: 'long', 
       day: 'numeric' 
     });
+  };
+
+  // Determine which news page to go back to
+  const getBackRoute = () => {
+    // Check if we're in a Korean article path
+    if (location.pathname.includes('/article/kor/')) {
+      return '/korean-news';
+    }
+    // Otherwise default to US news
+    return '/us-news';
+  };
+
+  const handleGoBack = () => {
+    navigate(getBackRoute());
   };
 
   if (!article) {
@@ -41,12 +57,10 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
-          <Link to="/news">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to News
-            </Button>
-          </Link>
+          <Button variant="ghost" size="sm" onClick={handleGoBack}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to News
+          </Button>
         </div>
         
         <div className="flex items-center justify-between">
