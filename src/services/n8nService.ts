@@ -1,3 +1,4 @@
+
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -75,7 +76,37 @@ More content paragraphs would go here. This is just a sample of what the markdow
   }
 
   public static async fetchKoreanNews(date: Date | undefined) {
-    return dateFilterService.sendDateFilter(date);
+    try {
+      const timestamp = new Date().getTime();
+      const userAgent = navigator.userAgent;
+      
+      // Use the correct webhook URL for Korean news
+      const webhookUrl = 'https://n8n.bioking.kr/webhook/9135400d-3e9e-4590-9530-bc0386e56c4b';
+      
+      // Format the date if provided
+      let dateParam = '';
+      if (date) {
+        const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        dateParam = `&date=${formattedDate}`;
+      }
+      
+      const response = await fetch(`${webhookUrl}?timestamp=${timestamp}${dateParam}&userAgent=${encodeURIComponent(userAgent)}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching Korean news:', error);
+      return { success: false, error: String(error) };
+    }
   }
 
   // Helper method for featured articles
