@@ -6,7 +6,6 @@ interface NewsItem {
   title: string;
   date: string;
   id?: string; // Add optional ID for navigation
-  isKorean?: boolean; // Add isKorean flag
 }
 
 interface StockNewsItemProps {
@@ -32,7 +31,7 @@ const StockNewsItem = ({ symbol, name, news }: StockNewsItemProps) => {
               <div className="flex-1">
                 {item.id ? (
                   <Link 
-                    to={`/article/${item.isKorean ? 'kor' : 'us'}/${item.id}`} 
+                    to={`/article/${item.id}`} 
                     className="font-medium hover:text-primary hover:underline"
                     onClick={(e) => {
                       // Ensure the event propagates correctly
