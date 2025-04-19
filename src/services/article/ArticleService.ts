@@ -1,9 +1,8 @@
-
 import { WebhookResponse } from '../base/BaseWebhookService';
 
 export class ArticleService {
-  // Updated webhook URL with /webhook-test instead of /webhook
-  private static WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/e17e4c67-018a-4265-8bc7-ba8a32059b3b';
+  // Updated webhook URL to use /webhook instead of /webhook-test
+  private static WEBHOOK_URL = 'https://n8n.bioking.kr/webhook/e17e4c67-018a-4265-8bc7-ba8a32059b3b';
 
   public static async fetchArticleContent(type: 'us' | 'kor', articleId: string): Promise<WebhookResponse> {
     try {
@@ -49,3 +48,5 @@ export class ArticleService {
     }
   }
 }
+
+export default ArticleService;
