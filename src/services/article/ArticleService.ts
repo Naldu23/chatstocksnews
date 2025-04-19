@@ -2,7 +2,8 @@
 import { WebhookResponse } from '../base/BaseWebhookService';
 
 export class ArticleService {
-  private static WEBHOOK_URL = 'https://n8n.bioking.kr/webhook-test/e17e4c67-018a-4265-8bc7-ba8a32059b3b';
+  // Using a different n8n webhook URL from the ones already being used in the application
+  private static WEBHOOK_URL = 'https://n8n.bioking.kr/webhook/e17e4c67-018a-4265-8bc7-ba8a32059b3b';
 
   public static async fetchArticleContent(type: 'us' | 'kor', articleId: string): Promise<WebhookResponse> {
     try {
