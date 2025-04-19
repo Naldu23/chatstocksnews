@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import NewsAggregator from '@/components/news/NewsAggregator';
 import { N8nService } from '@/services/n8nService';
 
@@ -13,11 +12,11 @@ const KoreanNewsPage = () => {
   };
   
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex h-screen flex-col">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
-      <div className="flex-1">
-        <main className="max-w-[1600px] mx-auto pb-8">
+      <div className="flex-1 overflow-auto">
+        <main className="h-full max-w-[1600px] mx-auto">
           <NewsAggregator 
             isKorean={true}
             fetchNews={N8nService.fetchKoreanNews}
@@ -25,8 +24,6 @@ const KoreanNewsPage = () => {
           />
         </main>
       </div>
-      
-      <Footer />
     </div>
   );
 };
