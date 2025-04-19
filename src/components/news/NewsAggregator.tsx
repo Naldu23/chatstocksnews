@@ -308,6 +308,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
             key={article.id} 
             article={article} 
             onGradeChange={handleGradeChange}
+            isKorean={isKorean}
           />
         ))}
       </div>

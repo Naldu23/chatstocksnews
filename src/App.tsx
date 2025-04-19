@@ -11,6 +11,8 @@ import NewsPage from "./pages/NewsPage";
 import ArticlePage from "./pages/ArticlePage";
 import NotFound from "./pages/NotFound";
 import KoreanNewsPage from "./pages/KoreanNewsPage";
+import USArticlePage from "./pages/USArticlePage";
+import KoreanArticlePage from "./pages/KoreanArticlePage";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +29,8 @@ const App = () => (
           <Route path="/stock/:symbol" element={<StockDetailPage />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/korean-news" element={<KoreanNewsPage />} />
-          <Route path="/article/:id" element={<ArticlePage />} />
+          <Route path="/article/us/:id" element={<USArticlePage />} />
+          <Route path="/article/kor/:id" element={<KoreanArticlePage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
