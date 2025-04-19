@@ -1,4 +1,3 @@
-
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -67,7 +66,40 @@ More content paragraphs would go here. This is just a sample of what the markdow
   }
 
   public static async fetchEnglishNews(date: Date | undefined) {
-    return dateFilterService.sendDateFilter(date);
+    try {
+      const timestamp = new Date().getTime();
+      const userAgent = navigator.userAgent;
+      
+      // Use the new webhook URL for US news feed
+      const webhookUrl = 'https://n8n.bioking.kr/webhook/9612ff66-f8cb-4995-b1c0-9f2f9b421fe3';
+      
+      // Format the date if provided - ensure we handle the date correctly without timezone issues
+      let dateParam = '';
+      if (date) {
+        // Create a new date with only year, month, day to avoid timezone issues
+        const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const formattedDate = normalizedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+        dateParam = `&date=${formattedDate}`;
+        console.log(`Fetching English news with selected date: ${date.toLocaleDateString()}, formatted: ${formattedDate}`);
+      }
+      
+      const response = await fetch(`${webhookUrl}?timestamp=${timestamp}${dateParam}&userAgent=${encodeURIComponent(userAgent)}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching English news:', error);
+      return { success: false, error: String(error) };
+    }
   }
 
   // Korean News Methods
