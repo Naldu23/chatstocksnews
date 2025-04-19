@@ -1,3 +1,4 @@
+
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '@/components/news/types';
@@ -70,7 +71,8 @@ const USArticlePage = () => {
               source: response.data.source || 'External Source',
               publishedAt: response.data.publishedAt || new Date().toISOString(),
               readTime: response.data.readTime || 5,
-              grade: 'interesting'
+              grade: 'interesting',
+              url: response.data.url || '' // Adding the missing url property
             };
             
             console.log('Created article from webhook data:', webhookArticle);
