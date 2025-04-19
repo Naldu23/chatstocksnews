@@ -34,6 +34,9 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
     return content.replace(/<\/br>/g, '\n\n').replace(/<br>/g, '\n\n').replace(/<br\/>/g, '\n\n');
   };
 
+  // Use content if available, otherwise use summary
+  const displayContent = article.content || article.summary;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <div className="space-y-4">
@@ -95,7 +98,7 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
       <Separator />
       
       <div className="prose prose-gray dark:prose-invert max-w-none">
-        {article.content ? (
+        {displayContent ? (
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}  // Add GitHub Flavored Markdown support
             rehypePlugins={[rehypeRaw]}  // Add support for HTML in markdown
@@ -111,10 +114,10 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
               strong: ({ node, ...props }) => <strong className="font-bold" {...props} />
             }}
           >
-            {processContent(article.content)}
+            {processContent(displayContent)}
           </ReactMarkdown>
         ) : (
-          <p className="text-lg">{article.summary}</p>
+          <p className="text-lg">No content available for this article.</p>
         )}
       </div>
     </div>
