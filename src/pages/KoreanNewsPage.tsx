@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 import NewsAggregator from '@/components/news/NewsAggregator';
 import { N8nService } from '@/services/n8nService';
 
@@ -24,6 +25,8 @@ const KoreanNewsPage = () => {
           />
         </main>
       </div>
+      
+      <Footer />
     </div>
   );
 };
