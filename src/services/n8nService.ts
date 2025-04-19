@@ -1,4 +1,3 @@
-
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -63,7 +62,7 @@ More content paragraphs would go here. This is just a sample of what the markdow
 
   // English News Methods
   public static async fetchEnglishFeaturedArticles() {
-    return N8nService.fetchFeaturedArticles('https://n8n.bioking.kr/webhook/d2c35989-6df5-4f99-8134-230e423f90f3');
+    return N8nService.fetchFeaturedArticles('https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544');
   }
 
   public static async fetchEnglishNews(date: Date | undefined) {
