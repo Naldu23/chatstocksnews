@@ -1,3 +1,4 @@
+
 import { BaseWebhookService } from '../base/BaseWebhookService';
 
 export class ChatService extends BaseWebhookService {
@@ -21,7 +22,7 @@ export class ChatService extends BaseWebhookService {
     return this.sendWebhookRequest(
       ChatService.CHAT_WEBHOOK_URL,
       { message, sessionId, timestamp: new Date().toISOString() },
-      'GET'
+      'POST'
     );
   }
 
@@ -29,7 +30,7 @@ export class ChatService extends BaseWebhookService {
     return this.sendWebhookRequest(
       ChatService.RESEARCH_WEBHOOK_URL,
       { query, sessionId, timestamp: new Date().toISOString() },
-      'GET'
+      'POST'
     );
   }
 
@@ -37,7 +38,7 @@ export class ChatService extends BaseWebhookService {
     return this.sendWebhookRequest(
       ChatService.REPORT_WEBHOOK_URL,
       { topic, sessionId, timestamp: new Date().toISOString() },
-      'GET'
+      'POST'
     );
   }
 }

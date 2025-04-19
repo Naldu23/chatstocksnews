@@ -67,86 +67,7 @@ More content paragraphs would go here. This is just a sample of what the markdow
   }
 
   public static async fetchEnglishNews(date: Date | undefined) {
-    try {
-      const timestamp = new Date().getTime();
-      const userAgent = navigator.userAgent;
-      
-      // Use the specific webhook URL provided
-      const webhookUrl = 'https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544';
-      
-      // Format the date if provided - ensure we handle the date correctly without timezone issues
-      let dateParam = '';
-      if (date) {
-        // Create a new date with only year, month, day to avoid timezone issues
-        const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        const formattedDate = normalizedDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-        dateParam = `&date=${formattedDate}`;
-        console.log(`Fetching English news with selected date: ${date.toLocaleDateString()}, formatted: ${formattedDate}`);
-      }
-      
-      // Add message and other parameters to the URL
-      const fullUrl = `${webhookUrl}?message=Articles${dateParam}&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`;
-      console.log(`Fetching news from URL: ${fullUrl}`);
-
-      const response = await fetch(fullUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json', // Added Content-Type
-          'X-Debug-Info': 'Lovable News Fetch' // Added debug header
-        },
-        mode: 'cors', // Added CORS mode
-        cache: 'no-cache' // Prevent caching
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}, StatusText: ${response.statusText}`);
-      }
-
-      const contentType = response.headers.get('content-type');
-      console.log('Content-Type:', contentType);
-
-      let data;
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        console.log('Non-JSON response:', text);
-        throw new Error(`Expected JSON, got ${contentType}`);
-      }
-      
-      console.log('News fetch response:', data);
-
-      // Validate the response structure
-      if (!data || (!Array.isArray(data) && (!data.articles || !Array.isArray(data.articles)))) {
-        throw new Error('Invalid response structure');
-      }
-
-      return { success: true, data };
-    } catch (error) {
-      console.error('Error fetching English news:', error);
-      
-      // Fallback to featured articles if main news fetch fails
-      try {
-        console.log('Attempting to fetch featured articles as fallback...');
-        const featuredResponse = await N8nService.fetchEnglishFeaturedArticles();
-        if (featuredResponse.success) {
-          console.log('Using featured articles as fallback');
-          return featuredResponse;
-        }
-      } catch (fallbackError) {
-        console.error('Fallback also failed:', fallbackError);
-      }
-      
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-        url: `https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544`
-      };
-    }
+    return dateFilterService.sendDateFilter(date);
   }
 
   // Korean News Methods
@@ -241,4 +162,3 @@ More content paragraphs would go here. This is just a sample of what the markdow
 }
 
 export default N8nService;
-
