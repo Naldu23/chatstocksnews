@@ -23,7 +23,7 @@ export abstract class BaseWebhookService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        signal: AbortSignal.timeout(15000), // 15 second timeout
+        signal: AbortSignal.timeout(30000), // Increase timeout to 30 seconds
         mode: 'cors',
         credentials: 'omit',
         cache: 'no-store', // Prevent caching of requests
@@ -46,6 +46,7 @@ export abstract class BaseWebhookService {
         
         // Try using 'no-cors' mode for POST requests to handle CORS issues
         // Note: This will make the response opaque, but at least the request will go through
+        // We're explicitly setting mode to no-cors for POST requests
         options.mode = 'no-cors';
       }
       
@@ -56,13 +57,14 @@ export abstract class BaseWebhookService {
       while (attempts < maxAttempts) {
         try {
           attempts++;
-          console.log(`Attempt ${attempts} to fetch from ${finalUrl}`);
+          console.log(`Attempt ${attempts} to fetch from ${finalUrl}`, options);
           const response = await fetch(finalUrl, options);
           
           // When using no-cors mode, we can't actually check response.ok
           // So we'll just assume it succeeded if we get here
           if (options.mode === 'no-cors') {
             console.log('Request sent in no-cors mode, assuming success');
+            console.log('Processing response data:', { message: "Request sent successfully" });
             return {
               success: true,
               data: { message: "Request sent successfully" }

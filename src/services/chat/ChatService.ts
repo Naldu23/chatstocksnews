@@ -19,26 +19,29 @@ export class ChatService extends BaseWebhookService {
   }
 
   public async sendChatMessage(message: string, sessionId: string) {
+    console.log(`Sending chat message to ${ChatService.CHAT_WEBHOOK_URL}`);
     return this.sendWebhookRequest(
       ChatService.CHAT_WEBHOOK_URL,
       { message, sessionId, timestamp: new Date().toISOString() },
-      'POST'
+      'POST'  // Explicitly set method to POST
     );
   }
 
   public async sendResearchRequest(query: string, sessionId: string) {
+    console.log(`Sending research request to ${ChatService.RESEARCH_WEBHOOK_URL}`);
     return this.sendWebhookRequest(
       ChatService.RESEARCH_WEBHOOK_URL,
       { query, sessionId, timestamp: new Date().toISOString() },
-      'POST'
+      'POST'  // Explicitly set method to POST
     );
   }
 
   public async sendReportRequest(topic: string, sessionId: string) {
+    console.log(`Sending report request to ${ChatService.REPORT_WEBHOOK_URL}`);
     return this.sendWebhookRequest(
       ChatService.REPORT_WEBHOOK_URL,
       { topic, sessionId, timestamp: new Date().toISOString() },
-      'POST'
+      'POST'  // Explicitly set method to POST
     );
   }
 }
