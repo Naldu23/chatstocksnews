@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,7 @@ import StockDetailPage from "./pages/StockDetailPage";
 import NewsPage from "./pages/NewsPage";
 import ArticlePage from "./pages/ArticlePage";
 import NotFound from "./pages/NotFound";
+import KoreanNewsPage from "./pages/KoreanNewsPage";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/stocks" element={<StocksOverviewPage />} />
           <Route path="/stock/:symbol" element={<StockDetailPage />} />
           <Route path="/news" element={<NewsPage />} />
+          <Route path="/korean-news" element={<KoreanNewsPage />} />
           <Route path="/article/:id" element={<ArticlePage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

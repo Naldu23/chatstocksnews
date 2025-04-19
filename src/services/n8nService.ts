@@ -1,4 +1,3 @@
-
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -61,14 +60,51 @@ More content paragraphs would go here. This is just a sample of what the markdow
     };
   }
 
-  // Add new method for featured articles webhook
-  public static async fetchFeaturedArticles() {
+  // English News Methods
+  public static async fetchEnglishFeaturedArticles() {
+    return N8nService.fetchFeaturedArticles('https://n8n.bioking.kr/webhook/d2c35989-6df5-4f99-8134-230e423f90f3');
+  }
+
+  public static async fetchEnglishNews(date: Date | undefined) {
+    return dateFilterService.sendDateFilter(date);
+  }
+
+  // Korean News Methods
+  public static async fetchKoreanFeaturedArticles() {
+    return N8nService.fetchFeaturedArticles('https://n8n.bioking.kr/webhook/10e40f57-a02e-4aff-b8fa-1a0efae68cf9');
+  }
+
+  public static async fetchKoreanNews(date: Date | undefined) {
     try {
       const timestamp = new Date().getTime();
       const userAgent = navigator.userAgent;
       
-      // Changed to new webhook URL
-      const response = await fetch(`https://n8n.bioking.kr/webhook/d2c35989-6df5-4f99-8134-230e423f90f3?message=Featured+Articles&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
+      const response = await fetch(`https://n8n.bioking.kr/webhook/9135400d-3e9e-4590-9530-bc0386e56c4b?timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching Korean news:', error);
+      return { success: false, error: String(error) };
+    }
+  }
+
+  // Helper method for featured articles
+  private static async fetchFeaturedArticles(webhookUrl: string) {
+    try {
+      const timestamp = new Date().getTime();
+      const userAgent = navigator.userAgent;
+      
+      const response = await fetch(`${webhookUrl}?message=Featured+Articles&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -82,11 +118,9 @@ More content paragraphs would go here. This is just a sample of what the markdow
       const responseData = await response.json();
       console.log('Featured articles response:', responseData);
       
-      // Handle the case where the response only contains a workflow started message
       if (responseData && responseData.message === "Workflow was started") {
-        // Make a second request after a short delay to get the actual data
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const secondResponse = await fetch(`https://n8n.bioking.kr/webhook/d2c35989-6df5-4f99-8134-230e423f90f3?message=Featured+Articles+Results&timestamp=${timestamp + 1000}&userAgent=${encodeURIComponent(userAgent)}`, {
+        const secondResponse = await fetch(`${webhookUrl}?message=Featured+Articles+Results&timestamp=${timestamp + 1000}&userAgent=${encodeURIComponent(userAgent)}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO, subDays, isToday } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -15,7 +14,13 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-export function NewsAggregator() {
+interface NewsAggregatorProps {
+  isKorean: boolean;
+  fetchNews: (date: Date | undefined) => Promise<any>;
+  fetchFeatured: () => Promise<any>;
+}
+
+export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggregatorProps) {
   const { toast } = useToast();
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(dummyNewsArticles);
   const [featuredArticles, setFeaturedArticles] = useState<NewsArticle[]>([]);
@@ -33,7 +38,7 @@ export function NewsAggregator() {
     try {
       console.log('Fetching featured articles');
       
-      const response = await N8nService.fetchFeaturedArticles();
+      const response = await fetchFeatured();
       
       if (response.success && response.data) {
         let articles = [];
@@ -85,8 +90,8 @@ export function NewsAggregator() {
     } finally {
       setFeaturedLoading(false);
     }
-  }, []);
-  
+  }, [fetchFeatured]);
+
   useEffect(() => {
     fetchFeaturedArticles();
   }, [fetchFeaturedArticles]);
@@ -96,11 +101,10 @@ export function NewsAggregator() {
     setIsErrorState(false);
     
     try {
-      console.log(`Fetching news for date (Local): ${date.toLocaleDateString()}`);
-      console.log(`Fetching news for date (ISO): ${date.toISOString()}`);
+      console.log(`Fetching ${isKorean ? 'Korean' : 'English'} news for date (Local): ${date.toLocaleDateString()}`);
+      console.log(`Fetching ${isKorean ? 'Korean' : 'English'} news for date (ISO): ${date.toISOString()}`);
       
-      const webhookResponse = await N8nService.sendDateFilter(date);
-      console.log('Webhook response received:', webhookResponse);
+      const webhookResponse = await fetchNews(date);
       
       if (!webhookResponse.success || 
           (webhookResponse.error && webhookResponse.error.includes("500")) || 
@@ -197,7 +201,7 @@ export function NewsAggregator() {
         setIsLoading(false);
       }, 500);
     }
-  }, [toast, hasTriedYesterday]);
+  }, [toast, hasTriedYesterday, fetchNews, isKorean]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -332,7 +336,9 @@ export function NewsAggregator() {
       <div className="flex flex-col md:flex-row gap-6 lg:gap-8">
         <div className="w-full md:w-64 space-y-6 flex-shrink-0">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-4">News Feed</h1>
+            <h1 className="text-2xl font-bold mb-4">
+              {isKorean ? 'Korean News Feed' : 'News Feed'}
+            </h1>
             <SearchBar 
               searchQuery={searchQuery}
               onSearchChange={handleSearchChange}
