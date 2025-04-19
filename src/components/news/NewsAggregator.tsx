@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO, isToday } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -321,7 +320,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
       </div>
       
       <div className="flex flex-col md:flex-row gap-6 lg:gap-8">
-        <div className="w-full md:w-64 space-y-6 flex-shrink-0">
+        <div className="w-full md:w-64 space-y-6 flex-shrink-0 pb-24"> {/* Added bottom padding here */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold mb-4">
               {isKorean ? 'Korean News Feed' : 'News Feed'}
@@ -349,7 +348,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
           </div>
         </div>
         
-        <div className="flex-1 pb-24"> {/* Added bottom padding here */}
+        <div className="flex-1 pb-24">
           {renderContent()}
           
           {isErrorState && !isLoading && (
@@ -367,4 +366,3 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
 }
 
 export default NewsAggregator;
-
