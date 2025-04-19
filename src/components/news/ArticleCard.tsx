@@ -1,3 +1,4 @@
+
 import { Clock, ExternalLink, Check } from 'lucide-react';
 import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
@@ -7,9 +8,10 @@ import { cn } from '@/lib/utils';
 interface ArticleCardProps {
   article: NewsArticle;
   onGradeChange?: (articleId: string, grade: string) => void;
+  isKorean?: boolean;
 }
 
-export const ArticleCard = ({ article, onGradeChange, isKorean = false }: ArticleCardProps & { isKorean?: boolean }) => {
+export const ArticleCard = ({ article, onGradeChange, isKorean = false }: ArticleCardProps) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
