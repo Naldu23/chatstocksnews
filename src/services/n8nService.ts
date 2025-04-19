@@ -21,6 +21,22 @@ export class N8nService {
     }
   }
 
+  // Helper function to convert importance number to string
+  private static convertImportanceToString(importance: number): string {
+    switch (importance) {
+      case 1:
+        return 'critical';
+      case 2:
+        return 'important';
+      case 3:
+        return 'useful';
+      case 4:
+        return 'interesting';
+      default:
+        return 'interesting';
+    }
+  }
+
   // Date filter methods
   public static async sendDateFilter(date: Date | undefined) {
     return dateFilterService.sendDateFilter(date);
@@ -110,11 +126,11 @@ More content paragraphs would go here. This is just a sample of what the markdow
 
       const data = await response.json();
       
-      // Convert importance strings to numbers
+      // Convert importance numbers to strings
       if (data.articles && Array.isArray(data.articles)) {
         data.articles = data.articles.map(article => ({
           ...article,
-          importance: N8nService.convertImportanceToNumber(article.grade)
+          grade: N8nService.convertImportanceToString(article.importance)
         }));
       }
       
@@ -159,11 +175,11 @@ More content paragraphs would go here. This is just a sample of what the markdow
 
       const data = await response.json();
       
-      // Convert importance strings to numbers
+      // Convert importance numbers to strings
       if (data.articles && Array.isArray(data.articles)) {
         data.articles = data.articles.map(article => ({
           ...article,
-          importance: N8nService.convertImportanceToNumber(article.grade)
+          grade: N8nService.convertImportanceToString(article.importance)
         }));
       }
       
