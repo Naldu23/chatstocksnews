@@ -1,4 +1,3 @@
-
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -59,6 +58,27 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eg
 More content paragraphs would go here. This is just a sample of what the markdown content might look like when fetched from the server.`
       }
     };
+  }
+
+  // Add new method for featured articles webhook
+  public static async fetchFeaturedArticles() {
+    try {
+      const response = await fetch('https://n8n.bioking.kr/webhook-test/d2c35989-6df5-4f99-8134-230e423f90f3', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: "Featured Articles"
+        })
+      });
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching featured articles:', error);
+      return { success: false, error: String(error) };
+    }
   }
 }
 

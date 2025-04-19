@@ -29,21 +29,15 @@ export function NewsAggregator() {
   useEffect(() => {
     const fetchFeaturedArticles = async () => {
       try {
-        const today = new Date();
-        console.log('Fetching featured articles for today');
+        console.log('Fetching featured articles');
         
-        const webhookResponse = await N8nService.sendDateFilter(today);
+        const response = await N8nService.fetchFeaturedArticles();
         
-        if (webhookResponse.success && webhookResponse.data) {
-          let articles: NewsArticle[] = [];
+        if (response.success && response.data) {
+          let articles = Array.isArray(response.data) ? response.data : [];
           
-          if (Array.isArray(webhookResponse.data) && 
-              webhookResponse.data.length > 0 && 
-              webhookResponse.data[0].articles) {
-            articles = webhookResponse.data[0].articles;
-          } else if (webhookResponse.data.articles) {
-            articles = webhookResponse.data.articles;
-          }
+          // Sort articles by order if it exists
+          articles = articles.sort((a, b) => (a.order || 0) - (b.order || 0));
           
           if (articles.length > 0) {
             setFeaturedArticles(articles);
@@ -62,7 +56,7 @@ export function NewsAggregator() {
     
     fetchFeaturedArticles();
   }, []);
-  
+
   const fetchNewsData = useCallback(async (date: Date) => {
     setIsLoading(true);
     setIsErrorState(false);
