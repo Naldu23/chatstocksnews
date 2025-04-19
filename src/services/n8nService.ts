@@ -33,7 +33,7 @@ export class N8nService {
       case 4:
         return 'interesting';
       default:
-        return 'interesting';
+        return 'critical'; // default to the highest importance if an invalid number is provided
     }
   }
 
