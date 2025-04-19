@@ -13,11 +13,11 @@ const KoreanNewsPage = () => {
   };
   
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex flex-col min-h-screen">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
-      <div className="flex-1 overflow-auto">
-        <main className="h-full max-w-[1600px] mx-auto">
+      <div className="flex-1">
+        <main className="max-w-[1600px] mx-auto pb-8">
           <NewsAggregator 
             isKorean={true}
             fetchNews={N8nService.fetchKoreanNews}
