@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Moon, Sun, Menu, X, Crown, Globe, Slack, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -90,7 +91,7 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <NavLink 
-                  to="/news"
+                  to="/us-news"
                   className="w-full flex items-center gap-2"
                 >
                   <span>US News</span>
@@ -187,7 +188,7 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
               <NavLink 
-                to="/news"
+                to="/us-news"
                 className="w-full flex items-center gap-2"
               >
                 <span>US News</span>
