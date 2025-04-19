@@ -25,37 +25,43 @@ export function NewsAggregator() {
   const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
   const [hasTriedYesterday, setHasTriedYesterday] = useState(false);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
   
-  useEffect(() => {
-    const fetchFeaturedArticles = async () => {
-      try {
-        console.log('Fetching featured articles');
+  const fetchFeaturedArticles = useCallback(async () => {
+    setFeaturedLoading(true);
+    try {
+      console.log('Fetching featured articles');
+      
+      const response = await N8nService.fetchFeaturedArticles();
+      
+      if (response.success && response.data) {
+        let articles = Array.isArray(response.data) ? response.data : [];
         
-        const response = await N8nService.fetchFeaturedArticles();
+        // Sort articles by order if it exists
+        articles = articles.sort((a, b) => (a.order || 0) - (b.order || 0));
         
-        if (response.success && response.data) {
-          let articles = Array.isArray(response.data) ? response.data : [];
-          
-          // Sort articles by order if it exists
-          articles = articles.sort((a, b) => (a.order || 0) - (b.order || 0));
-          
-          if (articles.length > 0) {
-            setFeaturedArticles(articles);
-            console.log('Featured articles loaded:', articles.length);
-          } else {
-            setFeaturedArticles(dummyNewsArticles);
-          }
+        if (articles.length > 0) {
+          setFeaturedArticles(articles);
+          console.log('Featured articles loaded:', articles.length);
         } else {
+          console.log('No featured articles returned, using dummy data');
           setFeaturedArticles(dummyNewsArticles);
         }
-      } catch (error) {
-        console.error('Error loading featured articles:', error);
+      } else {
+        console.warn('Failed to fetch featured articles:', response.error);
         setFeaturedArticles(dummyNewsArticles);
       }
-    };
-    
-    fetchFeaturedArticles();
+    } catch (error) {
+      console.error('Error loading featured articles:', error);
+      setFeaturedArticles(dummyNewsArticles);
+    } finally {
+      setFeaturedLoading(false);
+    }
   }, []);
+  
+  useEffect(() => {
+    fetchFeaturedArticles();
+  }, [fetchFeaturedArticles]);
 
   const fetchNewsData = useCallback(async (date: Date) => {
     setIsLoading(true);
@@ -191,7 +197,9 @@ export function NewsAggregator() {
       setHasTriedYesterday(false);
       fetchNewsData(selectedDate);
     }
-  }, [selectedDate, fetchNewsData]);
+    
+    fetchFeaturedArticles();
+  }, [selectedDate, fetchNewsData, fetchFeaturedArticles]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -295,7 +303,7 @@ export function NewsAggregator() {
   return (
     <div className="h-full p-4 md:p-6 lg:p-8">
       <div className="mb-16">
-        <FeaturedArticles articles={featuredArticles} isLoading={isLoading} />
+        <FeaturedArticles articles={featuredArticles} isLoading={featuredLoading} />
       </div>
       
       <div className="flex flex-col md:flex-row gap-6 lg:gap-8">
