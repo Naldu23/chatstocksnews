@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { startOfDay, endOfDay, parseISO, subDays, isToday } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, isToday } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
 import { NewsArticle } from './types';
@@ -22,15 +22,14 @@ interface NewsAggregatorProps {
 
 export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggregatorProps) {
   const { toast } = useToast();
-  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(dummyNewsArticles);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
   const [featuredArticles, setFeaturedArticles] = useState<NewsArticle[]>([]);
-  const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>(dummyNewsArticles);
+  const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isErrorState, setIsErrorState] = useState(false);
-  const [hasTriedYesterday, setHasTriedYesterday] = useState(false);
   const [featuredLoading, setFeaturedLoading] = useState(true);
   
   const fetchFeaturedArticles = useCallback(async () => {
@@ -101,8 +100,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
     setIsErrorState(false);
     
     try {
-      console.log(`Fetching ${isKorean ? 'Korean' : 'English'} news for date (Local): ${date.toLocaleDateString()}`);
-      console.log(`Fetching ${isKorean ? 'Korean' : 'English'} news for date (ISO): ${date.toISOString()}`);
+      console.log(`Fetching ${isKorean ? 'Korean' : 'English'} news for date: ${date.toLocaleDateString()}`);
       
       const webhookResponse = await fetchNews(date);
       
@@ -112,20 +110,12 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
         
         console.warn('No articles found for the selected date');
         
-        if (isToday(date) && !hasTriedYesterday) {
-          console.log('No articles found for today, trying yesterday');
-          setHasTriedYesterday(true);
-          const yesterday = subDays(date, 1);
-          setSelectedDate(yesterday);
-          return;
-        } else {
-          setNewsArticles([]);
-          toast({
-            title: "No Articles",
-            description: `No articles found for the selected date (${date.toLocaleDateString()})`,
-            variant: "default",
-          });
-        }
+        setNewsArticles([]);
+        toast({
+          title: "No Articles",
+          description: `No articles found for the selected date (${date.toLocaleDateString()})`,
+          variant: "default",
+        });
       } else {
         let articlesFound = false;
         let validatedArticles: NewsArticle[] = [];
@@ -181,7 +171,6 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
           });
         } else {
           setNewsArticles(validatedArticles);
-          setHasTriedYesterday(false);
         }
       }
     } catch (error) {
@@ -198,7 +187,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
         setIsLoading(false);
       }, 500);
     }
-  }, [toast, hasTriedYesterday, fetchNews, isKorean]);
+  }, [toast, fetchNews, isKorean]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -212,13 +201,11 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
     if (date) {
       const normalizedDate = startOfDay(date);
       setSelectedDate(normalizedDate);
-      setHasTriedYesterday(false);
     }
   }, []);
 
   const handleRefresh = useCallback(() => {
     if (selectedDate) {
-      setHasTriedYesterday(false);
       fetchNewsData(selectedDate);
     }
     
