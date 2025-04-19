@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { startOfDay, endOfDay, parseISO, isToday } from 'date-fns';
 import { N8nService } from '@/services/n8nService';
@@ -315,7 +316,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
 
   return (
     <div className="h-full p-4 md:p-6 lg:p-8">
-      <div className="mb-16">
+      <div className="mb-8"> {/* Reduced margin from mb-16 to mb-8 */}
         <FeaturedArticles articles={featuredArticles} isLoading={featuredLoading} />
       </div>
       
