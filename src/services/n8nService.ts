@@ -65,17 +65,19 @@ More content paragraphs would go here. This is just a sample of what the markdow
   public static async fetchFeaturedArticles() {
     try {
       const timestamp = new Date().getTime();
-      const response = await fetch(`https://n8n.bioking.kr/webhook-test/d2c35989-6df5-4f99-8134-230e423f90f3?_t=${timestamp}`, {
-        method: 'POST',
+      const userAgent = navigator.userAgent;
+      
+      // Changed from POST to GET request
+      const response = await fetch(`https://n8n.bioking.kr/webhook-test/d2c35989-6df5-4f99-8134-230e423f90f3?message=Featured+Articles&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        body: JSON.stringify({
-          message: "Featured Articles",
-          timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent
-        })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
       const data = await response.json();
       console.log('Featured articles response:', data);
