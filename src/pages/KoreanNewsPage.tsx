@@ -6,7 +6,6 @@ import { N8nService } from '@/services/n8nService';
 
 const KoreanNewsPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -19,7 +18,6 @@ const KoreanNewsPage = () => {
       <div className="flex-1 overflow-auto">
         <main className="h-full max-w-[1600px] mx-auto">
           <NewsAggregator 
-            key={refreshTrigger}
             isKorean={true}
             fetchNews={N8nService.fetchKoreanNews}
             fetchFeatured={N8nService.fetchKoreanFeaturedArticles}

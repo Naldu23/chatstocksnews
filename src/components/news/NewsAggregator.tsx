@@ -199,6 +199,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
   const handleDateChange = useCallback((date: Date | undefined) => {
     console.log("NewsAggregator: Date changed to:", date);
     if (date) {
+      // Don't add a day here, just normalize the date
       const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       console.log("NewsAggregator: Using normalized date:", normalizedDate);
       setSelectedDate(normalizedDate);
@@ -218,7 +219,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
     
     let filtered = [...newsArticles];
     
-    if (selectedDate) {
+    if (selectedDate && !isKorean) {
       const dayStart = startOfDay(selectedDate);
       const dayEnd = endOfDay(selectedDate);
       
@@ -248,7 +249,7 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
     }
     
     setFilteredArticles(filtered);
-  }, [newsArticles, selectedDate, selectedGrade, searchQuery, isLoading]);
+  }, [newsArticles, selectedDate, selectedGrade, searchQuery, isLoading, isKorean]);
 
   const handleGradeSelect = (gradeId: string) => {
     setSelectedGrade(gradeId);
