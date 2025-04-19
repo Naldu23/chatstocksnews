@@ -70,8 +70,8 @@ More content paragraphs would go here. This is just a sample of what the markdow
       const timestamp = new Date().getTime();
       const userAgent = navigator.userAgent;
       
-      // Use a webhook URL that we've confirmed is working based on network logs
-      const webhookUrl = 'https://n8n.bioking.kr/webhook/d2c35989-6df5-4f99-8134-230e423f90f3';
+      // Use the specific webhook URL provided
+      const webhookUrl = 'https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544';
       
       // Format the date if provided - ensure we handle the date correctly without timezone issues
       let dateParam = '';
@@ -83,8 +83,11 @@ More content paragraphs would go here. This is just a sample of what the markdow
         console.log(`Fetching English news with selected date: ${date.toLocaleDateString()}, formatted: ${formattedDate}`);
       }
       
-      // Add a message parameter to the URL to indicate this is for articles, similar to featured articles endpoint
-      const response = await fetch(`${webhookUrl}?message=Articles${dateParam}&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
+      // Add message and other parameters to the URL
+      const fullUrl = `${webhookUrl}?message=Articles${dateParam}&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`;
+      console.log(`Fetching news from URL: ${fullUrl}`);
+
+      const response = await fetch(fullUrl, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -96,13 +99,22 @@ More content paragraphs would go here. This is just a sample of what the markdow
       }
 
       const data = await response.json();
+      
+      // Log the response for debugging
+      console.log('News fetch response:', data);
+
+      // Validate the response structure
+      if (!data || (!Array.isArray(data) && (!data.articles || !Array.isArray(data.articles)))) {
+        throw new Error('Invalid response structure');
+      }
+
       return { success: true, data };
     } catch (error) {
       console.error('Error fetching English news:', error);
       
-      // Implement a fallback logic to use featured articles if main news fetch fails
-      console.log('Attempting to fetch featured articles as fallback...');
+      // Fallback to featured articles if main news fetch fails
       try {
+        console.log('Attempting to fetch featured articles as fallback...');
         const featuredResponse = await N8nService.fetchEnglishFeaturedArticles();
         if (featuredResponse.success) {
           console.log('Using featured articles as fallback');
@@ -112,7 +124,11 @@ More content paragraphs would go here. This is just a sample of what the markdow
         console.error('Fallback also failed:', fallbackError);
       }
       
-      return { success: false, error: String(error) };
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        url: `https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544`
+      };
     }
   }
 
