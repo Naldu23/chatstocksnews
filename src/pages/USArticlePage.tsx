@@ -25,17 +25,13 @@ const USArticlePage = () => {
       setIsLoading(true);
       
       try {
-        // Decode the ID from the URL if it's encoded
-        const decodedId = id ? decodeURIComponent(id) : '';
-        console.log(`Looking for US article with decoded ID: ${decodedId}`);
-        
-        const foundArticle = dummyNewsArticles.find(a => a.id === decodedId) || null;
+        const foundArticle = dummyNewsArticles.find(a => a.id === id) || null;
         
         if (foundArticle) {
           if (!foundArticle.content) {
-            console.log(`Fetching US article content for ID: ${decodedId}`);
+            console.log(`Fetching US article content for ID: ${id}`);
             
-            const response = await ArticleService.fetchArticleContent('us', decodedId);
+            const response = await ArticleService.fetchArticleContent('us', id || '');
             
             if (response.success && response.data) {
               foundArticle.content = response.data.content || foundArticle.summary;
@@ -48,7 +44,6 @@ const USArticlePage = () => {
           
           setArticle(foundArticle);
         } else {
-          console.warn(`Article not found with ID: ${decodedId}`);
           toast({
             title: "Article Not Found",
             description: "Could not find the requested article.",
