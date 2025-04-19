@@ -1,4 +1,3 @@
-
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -67,7 +66,38 @@ More content paragraphs would go here. This is just a sample of what the markdow
   }
 
   public static async fetchEnglishNews(date: Date | undefined) {
-    return dateFilterService.sendDateFilter(date);
+    try {
+      const timestamp = new Date().getTime();
+      const userAgent = navigator.userAgent;
+      
+      // Use the new webhook URL
+      const webhookUrl = 'https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544';
+      
+      // Format the date if provided
+      let dateParam = '';
+      if (date) {
+        const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        dateParam = `&date=${formattedDate}`;
+        console.log(`Fetching English news with date: ${formattedDate}`);
+      }
+      
+      const response = await fetch(`${webhookUrl}?timestamp=${timestamp}${dateParam}&userAgent=${encodeURIComponent(userAgent)}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching English news:', error);
+      return { success: false, error: String(error) };
+    }
   }
 
   // Korean News Methods
