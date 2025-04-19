@@ -1,3 +1,4 @@
+
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
@@ -70,8 +71,8 @@ More content paragraphs would go here. This is just a sample of what the markdow
       const timestamp = new Date().getTime();
       const userAgent = navigator.userAgent;
       
-      // Use the new webhook URL for US news feed
-      const webhookUrl = 'https://n8n.bioking.kr/webhook/9612ff66-f8cb-4995-b1c0-9f2f9b421fe3';
+      // Updated webhook URL for US news feed
+      const webhookUrl = 'https://n8n.bioking.kr/webhook/a5c542d8-e799-4cc3-9b68-583c493ea544';
       
       // Format the date if provided - ensure we handle the date correctly without timezone issues
       let dateParam = '';
