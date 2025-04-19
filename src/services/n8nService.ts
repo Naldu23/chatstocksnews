@@ -67,8 +67,8 @@ More content paragraphs would go here. This is just a sample of what the markdow
       const timestamp = new Date().getTime();
       const userAgent = navigator.userAgent;
       
-      // Changed from POST to GET request
-      const response = await fetch(`https://n8n.bioking.kr/webhook-test/d2c35989-6df5-4f99-8134-230e423f90f3?message=Featured+Articles&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
+      // Changed to new webhook URL
+      const response = await fetch(`https://n8n.bioking.kr/webhook/d2c35989-6df5-4f99-8134-230e423f90f3?message=Featured+Articles&timestamp=${timestamp}&userAgent=${encodeURIComponent(userAgent)}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -90,3 +90,4 @@ More content paragraphs would go here. This is just a sample of what the markdow
 }
 
 export default N8nService;
+
