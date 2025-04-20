@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '@/components/news/types';
@@ -50,7 +49,7 @@ const KoreanArticlePage = () => {
         };
         console.log('Sending webhook data:', payload);
         
-        const response = await fetch('https://n8n.bioking.kr/webhook-test/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
+        const response = await fetch('https://n8n.bioking.kr/webhook/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -128,7 +127,7 @@ const KoreanArticlePage = () => {
               publishedAt: response.data.publishedAt || new Date().toISOString(),
               readTime: response.data.readTime || 5,
               grade: 'interesting',
-              url: response.data.url || '' // Adding the missing url property
+              url: response.data.url || '' 
             };
             
             console.log('Created article from webhook data:', webhookArticle);

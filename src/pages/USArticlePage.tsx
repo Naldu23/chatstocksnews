@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '@/components/news/types';
@@ -68,7 +67,7 @@ const USArticlePage = () => {
         };
         console.log('Sending webhook data:', payload);
         
-        const response = await fetch('https://n8n.bioking.kr/webhook-test/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
+        const response = await fetch('https://n8n.bioking.kr/webhook/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
