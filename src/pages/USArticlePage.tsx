@@ -19,6 +19,13 @@ const USArticlePage = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const handleGradeChange = (grade: string) => {
+    if (article) {
+      setArticle({ ...article, grade });
+      // Note: In a real application, you would also want to persist this change to a backend
+    }
+  };
   
   useEffect(() => {
     const fetchArticleContent = async () => {
@@ -112,7 +119,7 @@ const USArticlePage = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : article ? (
-            <ArticleContent article={article} />
+            <ArticleContent article={article} onGradeChange={handleGradeChange} />
           ) : (
             <div className="max-w-4xl mx-auto pt-12">
               <NoArticlesFound />

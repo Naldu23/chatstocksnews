@@ -1,19 +1,25 @@
-import { BookOpen, Calendar, Clock, ArrowLeft, Bookmark, Share2 } from 'lucide-react';
+
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { NewsArticle } from './types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';  // Add support for tables, strikethrough, etc.
-import rehypeRaw from 'rehype-raw';  // Add support for rendering HTML inside markdown
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { importanceGrades } from './types';
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useToast } from "@/hooks/use-toast";
 
 interface ArticleContentProps {
   article: NewsArticle;
+  onGradeChange?: (grade: string) => void;
 }
 
-const ArticleContent = ({ article }: ArticleContentProps) => {
+const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -24,13 +30,10 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
     });
   };
 
-  // Determine which news page to go back to
   const getBackRoute = () => {
-    // Check if we're in a Korean article path
     if (location.pathname.includes('/article/kor/')) {
       return '/korean-news';
     }
-    // Otherwise default to US news
     return '/us-news';
   };
 
@@ -38,19 +41,25 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
     navigate(getBackRoute());
   };
 
+  const handleGradeChange = (grade: string) => {
+    if (onGradeChange) {
+      onGradeChange(grade);
+      toast({
+        title: "Grade Updated",
+        description: `Article importance set to ${grade}`,
+      });
+    }
+  };
+
   if (!article) {
     return <div>Article not found</div>;
-  }
+  };
 
-  // Process content to handle both </br> tags and regular markdown
   const processContent = (content?: string) => {
     if (!content) return content;
-    
-    // Replace HTML break tags with double newlines for markdown
     return content.replace(/<\/br>/g, '\n\n').replace(/<br>/g, '\n\n').replace(/<br\/>/g, '\n\n');
   };
 
-  // Use content if available, otherwise use summary
   const displayContent = article.content || article.summary;
 
   return (
@@ -63,22 +72,41 @@ const ArticleContent = ({ article }: ArticleContentProps) => {
           </Button>
         </div>
         
-        <div className="flex items-center justify-between">
-          {article.grade && (
+        <div className="flex flex-col gap-4">
+          {onGradeChange && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Importance:</span>
+              <ToggleGroup type="single" value={article.grade} onValueChange={handleGradeChange}>
+                {importanceGrades.slice(1).map((grade) => (
+                  <ToggleGroupItem
+                    key={grade.id}
+                    value={grade.id}
+                    aria-label={grade.name}
+                    className={article.grade === grade.id ? grade.color : ''}
+                  >
+                    {grade.name}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+          )}
+
+          {!onGradeChange && article.grade && (
             <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
               {article.grade.charAt(0).toUpperCase() + article.grade.slice(1)}
             </span>
           )}
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm">
-              <Bookmark className="h-4 w-4 mr-2" />
-              Save
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-          </div>
+
+          {article.url && (
+            <div className="flex justify-end">
+              <Button variant="outline" size="sm" asChild>
+                <a href={article.url} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  View Original Article
+                </a>
+              </Button>
+            </div>
+          )}
         </div>
         
         <h1 className="text-3xl md:text-4xl font-bold leading-tight">{article.title}</h1>
