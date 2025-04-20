@@ -45,8 +45,8 @@ export class N8nService extends BaseWebhookService {
       const importance = this.convertImportanceToNumber(grade);
       console.log(`Updating article grade: type=${articleType}, id=${articleId}, grade=${grade}, importance=${importance}`);
       
-      // Using the working webhook URL from the network logs
-      const webhookUrl = 'https://n8n.bioking.kr/webhook/e17e4c67-018a-4265-8bc7-ba8a32059b3b';
+      // Using the correct webhook URL as specified
+      const webhookUrl = 'https://n8n.bioking.kr/webhook/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3';
       
       // Create payload for GET parameters
       const payload = {
