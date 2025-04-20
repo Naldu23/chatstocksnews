@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header';
 import NoArticlesFound from '@/components/news/NoArticlesFound';
 import { ArticleService } from '@/services/article/ArticleService';
 import { useToast } from "@/hooks/use-toast";
+import { N8nService } from '@/services/n8nService';
 
 const USArticlePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,24 @@ const USArticlePage = () => {
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Convert numeric importance to string grade
+  const convertImportanceToGrade = (importance: number | undefined): 'critical' | 'important' | 'useful' | 'interesting' => {
+    if (!importance) return 'interesting'; // Default to lowest importance
+    
+    switch (importance) {
+      case 1:
+        return 'critical';
+      case 2:
+        return 'important';
+      case 3:
+        return 'useful';
+      case 4:
+        return 'interesting';
+      default:
+        return 'interesting';
+    }
   };
 
   const handleGradeChange = (grade: string) => {
@@ -71,6 +90,14 @@ const USArticlePage = () => {
           const response = await ArticleService.fetchArticleContent('us', decodedId);
           
           if (response.success && response.data && response.data.title) {
+            // Check if the response has an 'importance' field and convert it to 'grade'
+            const grade = response.data.grade || 
+                          (response.data.importance ? 
+                            convertImportanceToGrade(Number(response.data.importance)) : 
+                            'interesting');
+            
+            console.log(`Converting importance ${response.data.importance} to grade: ${grade}`);
+            
             const webhookArticle: NewsArticle = {
               id: decodedId,
               title: response.data.title || 'Unknown Title',
@@ -80,8 +107,8 @@ const USArticlePage = () => {
               source: response.data.source || 'External Source',
               publishedAt: response.data.publishedAt || new Date().toISOString(),
               readTime: response.data.readTime || 5,
-              grade: 'interesting',
-              url: response.data.url || '' // Adding the missing url property
+              grade: grade,
+              url: response.data.url || '' 
             };
             
             console.log('Created article from webhook data:', webhookArticle);

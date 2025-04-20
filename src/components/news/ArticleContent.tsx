@@ -1,3 +1,4 @@
+
 import { ArrowLeft, ExternalLink, Calendar, Clock, BookOpen } from 'lucide-react';
 import { NewsArticle } from './types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -42,7 +43,8 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
   };
 
   const handleGradeChange = (grade: string) => {
-    if (onGradeChange) {
+    console.log(`ArticleContent: Grade changed to ${grade}`);
+    if (onGradeChange && grade) {
       onGradeChange(grade);
       toast({
         title: "Grade Updated",
@@ -74,7 +76,12 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
         
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <ToggleGroup type="single" value={article.grade} onValueChange={handleGradeChange} className="flex gap-2">
+            <ToggleGroup 
+              type="single" 
+              value={article.grade || 'interesting'} 
+              onValueChange={handleGradeChange} 
+              className="flex gap-2"
+            >
               {importanceGrades.slice(1).map((grade) => (
                 <ToggleGroupItem
                   key={grade.id}
@@ -142,8 +149,8 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
       <div className="prose prose-gray dark:prose-invert max-w-none">
         {displayContent ? (
           <ReactMarkdown
-            remarkPlugins={[remarkGfm]}  // Add GitHub Flavored Markdown support
-            rehypePlugins={[rehypeRaw]}  // Add support for HTML in markdown
+            remarkPlugins={[remarkGfm]}  
+            rehypePlugins={[rehypeRaw]}  
             components={{
               h1: ({ node, ...props }) => <h1 className="text-3xl font-bold mt-6 mb-4" {...props} />,
               h2: ({ node, ...props }) => <h2 className="text-2xl font-bold mt-5 mb-3" {...props} />,
