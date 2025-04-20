@@ -1,3 +1,4 @@
+
 import { ArrowLeft, ExternalLink, Calendar, Clock, BookOpen } from 'lucide-react';
 import { NewsArticle } from './types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -42,7 +43,7 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
   };
 
   const handleGradeChange = (grade: string) => {
-    if (onGradeChange) {
+    if (onGradeChange && grade) {
       onGradeChange(grade);
       toast({
         title: "Grade Updated",
@@ -74,7 +75,12 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
         
         <div className="flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <ToggleGroup type="single" value={article.grade} onValueChange={handleGradeChange} className="flex gap-2">
+            <ToggleGroup 
+              type="single" 
+              value={article.grade} 
+              onValueChange={handleGradeChange} 
+              className="flex gap-2"
+            >
               {importanceGrades.slice(1).map((grade) => (
                 <ToggleGroupItem
                   key={grade.id}
@@ -82,10 +88,10 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
                   aria-label={grade.name}
                   className={cn(
                     "data-[state=on]:text-white",
-                    grade.id === 'critical' && "data-[state=on]:bg-rose-600",
-                    grade.id === 'important' && "data-[state=on]:bg-amber-500",
-                    grade.id === 'useful' && "data-[state=on]:bg-yellow-400 data-[state=on]:text-black",
-                    grade.id === 'interesting' && "data-[state=on]:bg-neutral-400 data-[state=on]:text-black"
+                    grade.id === 'critical' && "data-[state=on]:bg-[#7E69AB]",
+                    grade.id === 'important' && "data-[state=on]:bg-[#9b87f5]",
+                    grade.id === 'useful' && "data-[state=on]:bg-[#F2FCE2] data-[state=on]:text-black",
+                    grade.id === 'interesting' && "data-[state=on]:bg-[#FEF7CD] data-[state=on]:text-black"
                   )}
                 >
                   {grade.name}
