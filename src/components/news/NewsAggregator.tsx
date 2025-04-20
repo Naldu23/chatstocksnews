@@ -250,20 +250,67 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
     setFilteredArticles(filtered);
   }, [newsArticles, selectedDate, selectedGrade, searchQuery, isLoading, isKorean]);
 
-  const handleGradeSelect = (gradeId: string) => {
-    setSelectedGrade(gradeId);
+  const convertGradeToImportance = (grade: string): number => {
+    switch (grade) {
+      case 'critical':
+        return 1;
+      case 'important':
+        return 2;
+      case 'useful':
+        return 3;
+      case 'interesting':
+        return 4;
+      default:
+        return 4;
+    }
   };
 
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-  };
-
-  const handleGradeChange = (articleId: string, grade: string) => {
+  const handleGradeChange = async (articleId: string, grade: string) => {
     const updatedArticles = newsArticles.map(article => 
       article.id === articleId ? { ...article, grade: grade as NewsArticle['grade'] } : article
     );
     
     setNewsArticles(updatedArticles);
+    
+    const updatedArticle = updatedArticles.find(article => article.id === articleId);
+    
+    if (updatedArticle) {
+      const importance = convertGradeToImportance(grade);
+      
+      try {
+        const articleType = isKorean ? 'kor' : 'us';
+        const payload = {
+          type: articleType,
+          importance,
+          articleId: articleId
+        };
+        
+        console.log('Sending webhook data:', payload);
+        
+        const response = await fetch('https://n8n.bioking.kr/webhook-test/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          body: JSON.stringify(payload),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        console.log('Successfully notified n8n about grade change:', payload);
+      } catch (error) {
+        console.error('Failed to notify n8n about grade change:', error);
+        toast({
+          title: "Update Error",
+          description: "Failed to sync grade change with the server",
+          variant: "destructive",
+        });
+      }
+    }
     
     toast({
       title: "Article Graded",

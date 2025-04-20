@@ -1,3 +1,4 @@
+
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '@/components/news/types';
@@ -60,24 +61,28 @@ const USArticlePage = () => {
       const importance = convertGradeToImportance(grade);
       
       try {
+        const payload = {
+          type: 'us',
+          importance,
+          articleId: article.id
+        };
+        console.log('Sending webhook data:', payload);
+        
         const response = await fetch('https://n8n.bioking.kr/webhook-test/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
-          method: 'GET',
+          method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
           mode: 'cors',
-          cache: 'no-store',
+          body: JSON.stringify(payload),
         });
         
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         
-        console.log('Successfully notified n8n about grade change:', {
-          type: 'us',
-          importance,
-          articleId: article.id
-        });
+        console.log('Successfully notified n8n about grade change:', payload);
       } catch (error) {
         console.error('Failed to notify n8n about grade change:', error);
         toast({
