@@ -57,31 +57,14 @@ const USArticlePage = () => {
       const typedGrade = grade as 'critical' | 'important' | 'useful' | 'interesting';
       setArticle({ ...article, grade: typedGrade });
       
-      const importance = convertGradeToImportance(grade);
-      
       try {
-        const payload = {
-          type: 'us',
-          importance,
-          articleId: article.id
-        };
-        console.log('Sending webhook data:', payload);
+        const response = await N8nService.updateArticleGrade('us', article.id, grade);
         
-        const response = await fetch('https://n8n.bioking.kr/webhook/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          mode: 'cors',
-          body: JSON.stringify(payload),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.success) {
+          throw new Error(response.error || 'Failed to update article grade');
         }
         
-        console.log('Successfully notified n8n about grade change:', payload);
+        console.log('Successfully notified n8n about grade change:', grade);
       } catch (error) {
         console.error('Failed to notify n8n about grade change:', error);
         toast({

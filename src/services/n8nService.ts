@@ -1,8 +1,10 @@
+
 import { dateFilterService } from './dateFilter/DateFilterService';
 import { stockService } from './stock/StockService';
 import { chatService } from './chat/ChatService';
+import { BaseWebhookService } from './base/BaseWebhookService';
 
-export class N8nService {
+export class N8nService extends BaseWebhookService {
   // Helper function to convert importance string to number
   private static convertImportanceToNumber(importance: string | undefined): number {
     if (!importance) return 4; // default to lowest importance
@@ -34,6 +36,29 @@ export class N8nService {
         return 'interesting';
       default:
         return 'useful'; // default to 'useful' if an invalid number is provided
+    }
+  }
+
+  // New method to update article grade
+  public static async updateArticleGrade(articleType: 'us' | 'kor', articleId: string, grade: string) {
+    try {
+      const importance = this.convertImportanceToNumber(grade);
+      console.log(`Updating article grade: type=${articleType}, id=${articleId}, grade=${grade}, importance=${importance}`);
+      
+      const payload = {
+        type: articleType,
+        importance,
+        articleId
+      };
+      
+      const webhookUrl = 'https://n8n.bioking.kr/webhook/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3';
+      return await this.prototype.sendWebhookRequest(webhookUrl, payload, 'POST');
+    } catch (error) {
+      console.error('Error in updating article grade:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      };
     }
   }
 

@@ -283,33 +283,15 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
     const updatedArticle = updatedArticles.find(article => article.id === articleId);
     
     if (updatedArticle) {
-      const importance = convertGradeToImportance(grade);
-      
       try {
         const articleType = isKorean ? 'kor' : 'us';
-        const payload = {
-          type: articleType,
-          importance,
-          articleId: articleId
-        };
+        const response = await N8nService.updateArticleGrade(articleType, articleId, grade);
         
-        console.log('Sending webhook data:', payload);
-        
-        const response = await fetch('https://n8n.bioking.kr/webhook/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          mode: 'cors',
-          body: JSON.stringify(payload),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.success) {
+          throw new Error(response.error || 'Failed to update article grade');
         }
         
-        console.log('Successfully notified n8n about grade change:', payload);
+        console.log('Successfully notified n8n about grade change:', grade);
       } catch (error) {
         console.error('Failed to notify n8n about grade change:', error);
         toast({

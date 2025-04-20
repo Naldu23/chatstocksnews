@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header';
 import NoArticlesFound from '@/components/news/NoArticlesFound';
 import { ArticleService } from '@/services/article/ArticleService';
 import { useToast } from "@/hooks/use-toast";
+import { N8nService } from '@/services/n8nService';
 
 const KoreanArticlePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,31 +40,14 @@ const KoreanArticlePage = () => {
       const typedGrade = grade as 'critical' | 'important' | 'useful' | 'interesting';
       setArticle({ ...article, grade: typedGrade });
       
-      const importance = convertGradeToImportance(grade);
-      
       try {
-        const payload = {
-          type: 'kor',
-          importance,
-          articleId: article.id
-        };
-        console.log('Sending webhook data:', payload);
+        const response = await N8nService.updateArticleGrade('kor', article.id, grade);
         
-        const response = await fetch('https://n8n.bioking.kr/webhook/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          mode: 'cors',
-          body: JSON.stringify(payload),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.success) {
+          throw new Error(response.error || 'Failed to update article grade');
         }
         
-        console.log('Successfully notified n8n about grade change:', payload);
+        console.log('Successfully notified n8n about grade change:', grade);
       } catch (error) {
         console.error('Failed to notify n8n about grade change:', error);
         toast({
