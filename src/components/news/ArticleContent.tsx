@@ -1,3 +1,4 @@
+
 import { ArrowLeft, ExternalLink, Calendar, Clock, BookOpen } from 'lucide-react';
 import { NewsArticle } from './types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -72,39 +73,28 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
         </div>
         
         <div className="flex flex-col gap-4">
-          <ToggleGroup type="single" value={article.grade} onValueChange={handleGradeChange}>
-            {importanceGrades.slice(1).map((grade) => (
-              <ToggleGroupItem
-                key={grade.id}
-                value={grade.id}
-                aria-label={grade.name}
-                className={article.grade === grade.id ? grade.color : ''}
-              >
-                {grade.name}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight">{article.title}</h1>
-          
           <div className="flex justify-between items-center">
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1" />
-                {formatDate(article.publishedAt)}
-              </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 mr-1" />
-                {article.readTime} min read
-              </div>
-              <div className="flex items-center">
-                <BookOpen className="h-4 w-4 mr-1" />
-                Source: {article.source}
-              </div>
-            </div>
-            
+            <ToggleGroup type="single" value={article.grade} onValueChange={handleGradeChange} className="flex gap-2">
+              {importanceGrades.slice(1).map((grade) => (
+                <ToggleGroupItem
+                  key={grade.id}
+                  value={grade.id}
+                  aria-label={grade.name}
+                  className={cn(
+                    "data-[state=on]:text-white",
+                    grade.id === 'critical' && "data-[state=on]:bg-rose-600",
+                    grade.id === 'important' && "data-[state=on]:bg-amber-500",
+                    grade.id === 'useful' && "data-[state=on]:bg-yellow-400 data-[state=on]:text-black",
+                    grade.id === 'interesting' && "data-[state=on]:bg-neutral-400 data-[state=on]:text-black"
+                  )}
+                >
+                  {grade.name}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+
             {article.url && (
-              <Button variant="outline" size="sm" className="ml-auto" asChild>
+              <Button variant="outline" size="sm" asChild>
                 <a 
                   href={article.url} 
                   target="_blank" 
@@ -116,6 +106,23 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
                 </a>
               </Button>
             )}
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold leading-tight">{article.title}</h1>
+          
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center">
+              <Calendar className="h-4 w-4 mr-1" />
+              {formatDate(article.publishedAt)}
+            </div>
+            <div className="flex items-center">
+              <Clock className="h-4 w-4 mr-1" />
+              {article.readTime} min read
+            </div>
+            <div className="flex items-center">
+              <BookOpen className="h-4 w-4 mr-1" />
+              Source: {article.source}
+            </div>
           </div>
         </div>
       </div>
