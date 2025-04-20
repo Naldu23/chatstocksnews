@@ -1,4 +1,3 @@
-
 import { BaseWebhookService } from '../base/BaseWebhookService';
 
 export class ChatService extends BaseWebhookService {
@@ -24,7 +23,7 @@ export class ChatService extends BaseWebhookService {
       const result = await this.sendWebhookRequest(
         ChatService.CHAT_WEBHOOK_URL,
         { message, sessionId, timestamp: new Date().toISOString() },
-        'POST'
+        'GET'
       );
       
       // If the primary webhook fails, use the fallback response
