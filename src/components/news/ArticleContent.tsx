@@ -72,56 +72,50 @@ const ArticleContent = ({ article, onGradeChange }: ArticleContentProps) => {
         </div>
         
         <div className="flex flex-col gap-4">
-          {onGradeChange && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Importance:</span>
-              <ToggleGroup type="single" value={article.grade} onValueChange={handleGradeChange}>
-                {importanceGrades.slice(1).map((grade) => (
-                  <ToggleGroupItem
-                    key={grade.id}
-                    value={grade.id}
-                    aria-label={grade.name}
-                    className={article.grade === grade.id ? grade.color : ''}
-                  >
-                    {grade.name}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+          <ToggleGroup type="single" value={article.grade} onValueChange={handleGradeChange}>
+            {importanceGrades.slice(1).map((grade) => (
+              <ToggleGroupItem
+                key={grade.id}
+                value={grade.id}
+                aria-label={grade.name}
+                className={article.grade === grade.id ? grade.color : ''}
+              >
+                {grade.name}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+
+          <h1 className="text-3xl md:text-4xl font-bold leading-tight">{article.title}</h1>
+          
+          <div className="flex justify-between items-center">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-1" />
+                {formatDate(article.publishedAt)}
+              </div>
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-1" />
+                {article.readTime} min read
+              </div>
+              <div className="flex items-center">
+                <BookOpen className="h-4 w-4 mr-1" />
+                Source: {article.source}
+              </div>
             </div>
-          )}
-
-          {!onGradeChange && article.grade && (
-            <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
-              {article.grade.charAt(0).toUpperCase() + article.grade.slice(1)}
-            </span>
-          )}
-
-          {article.url && (
-            <div className="flex justify-end">
-              <Button variant="outline" size="sm" asChild>
-                <a href={article.url} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  View Original Article
+            
+            {article.url && (
+              <Button variant="outline" size="sm" className="ml-auto" asChild>
+                <a 
+                  href={article.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  View Original
+                  <ExternalLink className="h-4 w-4" />
                 </a>
               </Button>
-            </div>
-          )}
-        </div>
-        
-        <h1 className="text-3xl md:text-4xl font-bold leading-tight">{article.title}</h1>
-        
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center">
-            <Calendar className="h-4 w-4 mr-1" />
-            {formatDate(article.publishedAt)}
-          </div>
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-1" />
-            {article.readTime} min read
-          </div>
-          <div className="flex items-center">
-            <BookOpen className="h-4 w-4 mr-1" />
-            Source: {article.source}
+            )}
           </div>
         </div>
       </div>
