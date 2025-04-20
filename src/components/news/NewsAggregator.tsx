@@ -32,6 +32,14 @@ export function NewsAggregator({ isKorean, fetchNews, fetchFeatured }: NewsAggre
   const [isErrorState, setIsErrorState] = useState(false);
   const [featuredLoading, setFeaturedLoading] = useState(true);
   
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+  
+  const handleGradeSelect = (gradeId: string) => {
+    setSelectedGrade(gradeId);
+  };
+
   const fetchFeaturedArticles = useCallback(async () => {
     setFeaturedLoading(true);
     try {
