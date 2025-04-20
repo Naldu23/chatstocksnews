@@ -39,20 +39,24 @@ export class N8nService extends BaseWebhookService {
     }
   }
 
-  // New method to update article grade
+  // Update method to use GET request instead of POST
   public static async updateArticleGrade(articleType: 'us' | 'kor', articleId: string, grade: string) {
     try {
       const importance = this.convertImportanceToNumber(grade);
       console.log(`Updating article grade: type=${articleType}, id=${articleId}, grade=${grade}, importance=${importance}`);
       
+      // Using the working webhook URL from the network logs
+      const webhookUrl = 'https://n8n.bioking.kr/webhook/e17e4c67-018a-4265-8bc7-ba8a32059b3b';
+      
+      // Create payload for GET parameters
       const payload = {
         type: articleType,
-        importance,
-        articleId
+        importance: importance,
+        articleId: articleId,
+        timestamp: new Date().toISOString()
       };
       
-      const webhookUrl = 'https://n8n.bioking.kr/webhook/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3';
-      return await this.prototype.sendWebhookRequest(webhookUrl, payload, 'POST');
+      return await this.prototype.sendWebhookRequest(webhookUrl, payload, 'GET');
     } catch (error) {
       console.error('Error in updating article grade:', error);
       return {

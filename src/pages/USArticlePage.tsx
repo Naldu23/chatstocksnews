@@ -1,3 +1,4 @@
+
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '@/components/news/types';
@@ -58,13 +59,18 @@ const USArticlePage = () => {
       setArticle({ ...article, grade: typedGrade });
       
       try {
+        console.log(`Sending grade update for US article: ${article.id}, grade: ${grade}`);
         const response = await N8nService.updateArticleGrade('us', article.id, grade);
         
         if (!response.success) {
           throw new Error(response.error || 'Failed to update article grade');
         }
         
-        console.log('Successfully notified n8n about grade change:', grade);
+        console.log('Successfully notified n8n about grade change:', response.data);
+        toast({
+          title: "Grade Updated",
+          description: `Article importance set to ${grade}`,
+        });
       } catch (error) {
         console.error('Failed to notify n8n about grade change:', error);
         toast({
