@@ -22,7 +22,9 @@ const USArticlePage = () => {
 
   const handleGradeChange = (grade: string) => {
     if (article) {
-      setArticle({ ...article, grade });
+      // Cast the grade to the expected type
+      const typedGrade = grade as 'critical' | 'important' | 'useful' | 'interesting';
+      setArticle({ ...article, grade: typedGrade });
       // Note: In a real application, you would also want to persist this change to a backend
     }
   };

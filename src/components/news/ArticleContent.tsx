@@ -1,5 +1,4 @@
-
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Calendar, Clock, BookOpen } from 'lucide-react';
 import { NewsArticle } from './types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
