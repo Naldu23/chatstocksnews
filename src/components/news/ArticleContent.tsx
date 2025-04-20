@@ -1,4 +1,3 @@
-
 import { ArrowLeft, ExternalLink, Calendar, Clock, BookOpen } from 'lucide-react';
 import { NewsArticle } from './types';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -10,6 +9,7 @@ import rehypeRaw from 'rehype-raw';
 import { importanceGrades } from './types';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface ArticleContentProps {
   article: NewsArticle;
