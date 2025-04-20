@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '@/components/news/types';
@@ -20,12 +19,55 @@ const KoreanArticlePage = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const handleGradeChange = (grade: string) => {
+  const convertGradeToImportance = (grade: string): number => {
+    switch (grade) {
+      case 'critical':
+        return 1;
+      case 'important':
+        return 2;
+      case 'useful':
+        return 3;
+      case 'interesting':
+        return 4;
+      default:
+        return 4;
+    }
+  };
+
+  const handleGradeChange = async (grade: string) => {
     if (article) {
-      // Cast the grade to the expected type
       const typedGrade = grade as 'critical' | 'important' | 'useful' | 'interesting';
       setArticle({ ...article, grade: typedGrade });
-      // Note: In a real application, you would also want to persist this change to a backend
+      
+      const importance = convertGradeToImportance(grade);
+      
+      try {
+        const response = await fetch('https://n8n.bioking.kr/webhook-test/d5ca48e8-d388-4e52-aecf-7778c9f6e7d3', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          cache: 'no-store',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        console.log('Successfully notified n8n about grade change:', {
+          type: 'kor',
+          importance,
+          articleId: article.id
+        });
+      } catch (error) {
+        console.error('Failed to notify n8n about grade change:', error);
+        toast({
+          title: "Update Error",
+          description: "Failed to sync grade change with the server",
+          variant: "destructive",
+        });
+      }
     }
   };
   
